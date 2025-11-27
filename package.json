@@ -1,0 +1,27 @@
+{
+  "name": "nextdoctor",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "pnpm --filter './packages/*' build",
+    "dev": "pnpm --filter './packages/*' dev",
+    "test": "vitest",
+    "test:e2e": "playwright test",
+    "lint": "biome check .",
+    "format": "biome format --write .",
+    "typecheck": "pnpm --filter './packages/*' typecheck",
+    "clean": "pnpm --filter './packages/*' clean",
+    "changeset": "changeset",
+    "release": "pnpm build && changeset publish"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "pnpm@10.11.1",
+  "devDependencies": {
+    "@biomejs/biome": "^2.3.7",
+    "@changesets/cli": "^2.29.7",
+    "typescript": "^5.9.3"
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "name": "@nextdoctor/core",
+  "private": "true",
+  "version": "1.0.0",
+  "description": "",
+  "type": "module",
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "pnpm@10.11.1"
+}

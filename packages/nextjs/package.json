@@ -1,0 +1,78 @@
+{
+  "name": "nextdoctor",
+  "version": "1.0.0",
+  "description": "",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.mts",
+      "import": "./dist/index.mjs",
+      "default": "./dist/index.mjs"
+    },
+    "./middleware": {
+      "types": "./dist/middleware.d.mts",
+      "import": "./dist/middleware.mjs",
+      "default": "./dist/middleware.mjs"
+    },
+    "./instrumentation": {
+      "types": "./dist/instrumentation/server.d.mts",
+      "import": "./dist/instrumentation/server.mjs",
+      "default": "./dist/instrumentation/server.mjs"
+    },
+    "./instrumentation-client": {
+      "types": "./dist/instrumentation/client.d.mts",
+      "import": "./dist/instrumentation/client.mjs",
+      "default": "./dist/instrumentation/client.mjs"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsdown",
+    "dev": "tsdown --watch",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "@hono/node-server": "^1.19.6",
+    "@opentelemetry/context-zone": "^2.2.0",
+    "@opentelemetry/exporter-metrics-otlp-http": "^0.208.0",
+    "@opentelemetry/exporter-trace-otlp-http": "^0.208.0",
+    "@opentelemetry/instrumentation": "^0.208.0",
+    "@opentelemetry/instrumentation-fetch": "^0.208.0",
+    "@opentelemetry/instrumentation-http": "^0.208.0",
+    "@opentelemetry/instrumentation-undici": "^0.19.0",
+    "@opentelemetry/instrumentation-xml-http-request": "^0.208.0",
+    "@opentelemetry/resources": "^2.2.0",
+    "@opentelemetry/sdk-metrics": "^2.2.0",
+    "@opentelemetry/sdk-node": "^0.208.0",
+    "@opentelemetry/sdk-trace-base": "^2.2.0",
+    "@opentelemetry/sdk-trace-web": "^2.2.0",
+    "@opentelemetry/semantic-conventions": "^1.38.0",
+    "@vercel/otel": "^2.1.0",
+    "hono": "^4.10.7",
+    "tsdown": "^0.16.7",
+    "typescript": "^5.9.3"
+  },
+  "peerDependencies": {
+    "next": ">=15.0.0",
+    "react": ">=18.0.0"
+  },
+  "peerDependenciesMeta": {
+    "next": {
+      "optional": false
+    },
+    "react": {
+      "optional": false
+    }
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "pnpm@10.11.1",
+  "devDependencies": {
+    "@types/node": "^24.10.1"
+  }
+}
