@@ -14,3 +14,16 @@ export class InvalidMetricError extends Data.TaggedError("InvalidMetricError")<{
   readonly message: string;
   readonly metricName?: string;
 }> {}
+
+export class TraceRepositoryError extends Data.TaggedError(
+  "TraceRepositoryError",
+)<{
+  readonly message: string;
+  readonly traceId?: string;
+}> {}
+
+export class MetricRepositoryError extends Data.TaggedError(
+  "MetricRepositoryError",
+)<{
+  readonly message: string;
+}> {}

@@ -1,6 +1,6 @@
 import { Array as Arr, Option, Schema } from "effect";
 import type { Span } from "./Span";
-import { getSpanDuration, isRootSpan } from "./Span";
+import { getAttributeAsString, getSpanDuration, isRootSpan } from "./Span";
 
 export interface Trace {
   readonly traceId: string;
@@ -25,16 +25,10 @@ export const getTotalDuration = (trace: Trace): bigint =>
 
 export const getServiceName = (trace: Trace): Option.Option<string> =>
   Option.flatMap(getRootSpan(trace), (span) =>
-    Option.fromNullable(
-      span.attributes.find((attr) => attr.key === "service.name"),
-    ),
-  ).pipe(
-    Option.flatMap((attr) =>
-      attr.value.type === "string"
-        ? Option.some(attr.value.value)
-        : Option.none(),
-    ),
+    Option.fromNullable(getAttributeAsString(span, "service.name")),
   );
+
+export const getSpanCount = (trace: Trace): number => trace.spans.length;
 
 export interface SpanNode {
   readonly span: Span;
@@ -64,4 +58,12 @@ export const buildSpanTree = (
   });
 
   return spans.filter(isRootSpan).map(buildNode);
+};
+
+export const getMaxDepth = (nodes: ReadonlyArray<SpanNode>): number => {
+  if (nodes.length === 0) return 0;
+
+  const depths = nodes.map((node) => 1 + getMaxDepth(node.children));
+
+  return Math.max(...depths);
 };

@@ -5,18 +5,27 @@ import {
   getServiceName,
   getTotalDuration,
 } from "../domain/Trace";
+import type { TraceRepositoryError } from "../errors";
 import { TraceRepository } from "./TraceRepository";
 
 export interface ITraceService {
   readonly getTrace: (
     traceId: string,
-  ) => Effect.Effect<Trace, never, TraceRepository>;
+  ) => Effect.Effect<Trace, TraceRepositoryError, TraceRepository>;
   readonly getTraceTree: (
     traceId: string,
-  ) => Effect.Effect<ReadonlyArray<SpanNode>, never, TraceRepository>;
+  ) => Effect.Effect<
+    ReadonlyArray<SpanNode>,
+    TraceRepositoryError,
+    TraceRepository
+  >;
   readonly listRecent: (
     limit: number,
-  ) => Effect.Effect<ReadonlyArray<TraceWithMetadata>, never, TraceRepository>;
+  ) => Effect.Effect<
+    ReadonlyArray<TraceWithMetadata>,
+    TraceRepositoryError,
+    TraceRepository
+  >;
 }
 
 export class TraceService extends Context.Tag("@nextdoctor/TraceService")<

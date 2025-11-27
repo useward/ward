@@ -95,3 +95,21 @@ export const findAttribute = (
   key: string,
 ): AttributeValue | undefined =>
   span.attributes.find((attr) => attr.key === key)?.value;
+
+export const getAttributeAsString = (
+  span: Span,
+  key: string,
+): string | undefined => {
+  const attr = findAttribute(span, key);
+  if (!attr) return undefined;
+
+  switch (attr.type) {
+    case "string":
+      return attr.value;
+    case "int":
+    case "double":
+      return String(attr.value);
+    case "bool":
+      return attr.value ? "true" : "false";
+  }
+};

@@ -17,6 +17,7 @@
     "noImplicitOverride": true,
     "paths": {
       "@nextdoctor/core": ["./packages/core/src"],
+      "@nextdoctor/core/*": ["./packages/core/src/*"],
       "@nextdoctor/nextjs": ["./packages/nextjs/src"],
       "@nextdoctor/server": ["./packages/server/src"],
       "@nextdoctor/shared": ["./packages/shared/src"]
