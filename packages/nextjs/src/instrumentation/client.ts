@@ -37,7 +37,7 @@ export function register() {
   registerInstrumentations({
     instrumentations: [
       new FetchInstrumentation({
-        ignoreUrls: [/localhost:1234/],
+        ignoreUrls: [new RegExp(`localhost:${SERVER_PORT}`)],
       }),
       new XMLHttpRequestInstrumentation(),
     ],
