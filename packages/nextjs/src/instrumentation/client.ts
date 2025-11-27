@@ -1,6 +1,13 @@
-import { METRIC_ENDPOINT, SERVER_PORT, TRACE_ENDPOINT } from "@nextdoctor/shared";
+import {
+  METRIC_ENDPOINT,
+  SERVER_PORT,
+  TRACE_ENDPOINT,
+} from "@nextdoctor/shared";
 import { ZoneContextManager } from "@opentelemetry/context-zone";
-import { OTLPMetricExporter } from "@opentelemetry/exporter-metrics-otlp-http";
+import {
+  AggregationTemporalityPreference,
+  OTLPMetricExporter,
+} from "@opentelemetry/exporter-metrics-otlp-http";
 import { OTLPTraceExporter } from "@opentelemetry/exporter-trace-otlp-http";
 import { registerInstrumentations } from "@opentelemetry/instrumentation";
 import { FetchInstrumentation } from "@opentelemetry/instrumentation-fetch";
@@ -41,7 +48,10 @@ export function register() {
     tracerProvider: provider,
   });
 
-  const metricExporter = new OTLPMetricExporter({ url: METRIC_ENDPOINT });
+  const metricExporter = new OTLPMetricExporter({
+    url: METRIC_ENDPOINT,
+    temporalityPreference: AggregationTemporalityPreference.DELTA,
+  });
 
   const metricReader = new PeriodicExportingMetricReader({
     exporter: metricExporter,
