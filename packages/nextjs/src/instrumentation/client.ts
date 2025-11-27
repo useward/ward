@@ -1,4 +1,4 @@
-import { SERVER_PORT } from "@nextdoctor/shared";
+import { METRIC_ENDPOINT, SERVER_PORT, TRACE_ENDPOINT } from "@nextdoctor/shared";
 import { ZoneContextManager } from "@opentelemetry/context-zone";
 import { OTLPMetricExporter } from "@opentelemetry/exporter-metrics-otlp-http";
 import { OTLPTraceExporter } from "@opentelemetry/exporter-trace-otlp-http";
@@ -12,9 +12,6 @@ import {
 } from "@opentelemetry/sdk-metrics";
 import { BatchSpanProcessor } from "@opentelemetry/sdk-trace-base";
 import { WebTracerProvider } from "@opentelemetry/sdk-trace-web";
-
-const TRACE_ENDPOINT = `http://localhost:${SERVER_PORT}/v1/client-traces`;
-const METRIC_ENDPOINT = `http://localhost:${SERVER_PORT}/v1/client-metrics`;
 
 export function register() {
   if (typeof window === "undefined") return;

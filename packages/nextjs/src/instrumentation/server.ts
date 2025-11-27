@@ -1,5 +1,5 @@
 import { runServer } from "@nextdoctor/server";
-import { SERVER_PORT } from "@nextdoctor/shared";
+import { METRIC_ENDPOINT, TRACE_ENDPOINT } from "@nextdoctor/shared";
 import { OTLPMetricExporter } from "@opentelemetry/exporter-metrics-otlp-http";
 import { OTLPTraceExporter } from "@opentelemetry/exporter-trace-otlp-http";
 import {
@@ -15,8 +15,6 @@ import {
 import { BatchSpanProcessor } from "@opentelemetry/sdk-trace-base";
 import { registerOTel } from "@vercel/otel";
 
-const TRACE_ENDPOINT = `http://localhost:${SERVER_PORT}/v1/server-traces`;
-const METRIC_ENDPOINT = `http://localhost:${SERVER_PORT}/v1/server-metrics`;
 const SERVICE_NAME = "nextjs-server-app";
 
 export async function register() {
