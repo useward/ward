@@ -1,9 +1,9 @@
 {
   "compilerOptions": {
     "target": "ES2022",
-    "module": "ESNext",
     "lib": ["ES2022"],
-    "moduleResolution": "Bundler",
+    "moduleResolution": "nodenext",
+    "module": "nodenext",
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
@@ -14,14 +14,7 @@
     "declarationMap": true,
     "sourceMap": true,
     "noUncheckedIndexedAccess": true,
-    "noImplicitOverride": true,
-    "paths": {
-      "@nextdoctor/core": ["./packages/core/src"],
-      "@nextdoctor/core/*": ["./packages/core/src/*"],
-      "@nextdoctor/nextjs": ["./packages/nextjs/src"],
-      "@nextdoctor/server": ["./packages/server/src"],
-      "@nextdoctor/shared": ["./packages/shared/src"]
-    }
+    "noImplicitOverride": true
   },
   "exclude": ["node_modules", "dist"]
 }

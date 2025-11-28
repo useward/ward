@@ -1,8 +1,8 @@
-import { TraceRepositoryError } from "@nextdoctor/core/errors";
-import { Effect, Layer, Config } from "effect";
-import Database from "better-sqlite3";
+import { TraceRepositoryError } from "@nextdoctor/core";
+import type { Span, Trace } from "@nextdoctor/core/domain";
 import { TraceRepository } from "@nextdoctor/core/services";
-import type { Trace, Span } from "@nextdoctor/core/domain";
+import Database from "better-sqlite3";
+import { Config, Effect, Layer } from "effect";
 import { initializeSchema } from "./schema";
 import type { SpanRow, TraceRow } from "./types";
 

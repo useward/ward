@@ -1,7 +1,4 @@
-import {
-  TraceService,
-  TraceServiceLive,
-} from "@nextdoctor/core/services/TraceService";
+import { TraceService, TraceServiceLive } from "@nextdoctor/core/services";
 import { ConfigProvider, Layer, ManagedRuntime } from "effect";
 import { OtlpParserLive } from "./adapters/OtlpParserLive";
 import { MetricRepositoryLive } from "./storage/sqlite/MetricRepositoryLive";

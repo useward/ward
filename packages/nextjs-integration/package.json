@@ -57,7 +57,9 @@
     "better-sqlite3": "^12.4.6",
     "hono": "^4.10.7",
     "tsdown": "^0.16.7",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "@nextdoctor/server": "workspace:*",
+    "@nextdoctor/shared": "workspace:*"
   },
   "peerDependencies": {
     "next": ">=15.0.0",

@@ -1,4 +1,3 @@
-import { runServer } from "@nextdoctor/server";
 import { METRIC_ENDPOINT, TRACE_ENDPOINT } from "@nextdoctor/shared";
 import { OTLPMetricExporter } from "@opentelemetry/exporter-metrics-otlp-http";
 import { OTLPTraceExporter } from "@opentelemetry/exporter-trace-otlp-http";
@@ -14,11 +13,21 @@ import {
 } from "@opentelemetry/sdk-metrics";
 import { BatchSpanProcessor } from "@opentelemetry/sdk-trace-base";
 import { registerOTel } from "@vercel/otel";
+import { spawn } from "node:child_process";
 
 const SERVICE_NAME = "nextjs-server-app";
 
 export async function register() {
-  await runServer();
+  const nextDoctorPrecess = spawn("node", ["@nextdoctor/server"]);
+
+  const killNextDoctorIfNeeded = () => {
+    if (nextDoctorPrecess && !nextDoctorPrecess.killed) {
+      nextDoctorPrecess.kill();
+    }
+  };
+
+  process.on("exit", killNextDoctorIfNeeded);
+  process.on("SIGINT", killNextDoctorIfNeeded);
 
   const serviceAttributes = {
     "service.name": SERVICE_NAME,

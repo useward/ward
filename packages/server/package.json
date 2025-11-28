@@ -4,17 +4,34 @@
   "version": "1.0.0",
   "description": "",
   "keywords": [],
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js"
+  },
   "author": "",
   "license": "ISC",
   "packageManager": "pnpm@10.11.1",
   "dependencies": {
     "@hono/node-server": "^1.19.6",
+    "@nextdoctor/shared": "workspace:*",
+    "@nextdoctor/core": "workspace:*",
     "@opentelemetry/otlp-transformer": "^0.208.0",
     "better-sqlite3": "^12.4.6",
     "effect": "^3.19.8",
     "hono": "^4.10.7"
   },
   "devDependencies": {
-    "@types/better-sqlite3": "^7.6.13"
+    "@types/better-sqlite3": "^7.6.13",
+    "ts-node": "^10.9.2",
+    "tsconfig-paths": "^4.2.0",
+    "tsx": "^4.20.6",
+    "typescript": "^5.9.3"
   }
 }
