@@ -25,6 +25,9 @@
       "default": "./dist/instrumentation/client.mjs"
     }
   },
+  "bin": {
+    "nextdoctor": "./dist/nextdoctor.mjs"
+  },
   "files": [
     "dist"
   ],
@@ -57,7 +60,10 @@
     "better-sqlite3": "^12.4.6",
     "hono": "^4.10.7",
     "tsdown": "^0.16.7",
-    "typescript": "^5.9.3",
+    "typescript": "^5.9.3"
+  },
+  "devDependencies": {
+    "@types/node": "^24.10.1",
     "@nextdoctor/server": "workspace:*",
     "@nextdoctor/shared": "workspace:*"
   },
@@ -76,8 +82,5 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "packageManager": "pnpm@10.11.1",
-  "devDependencies": {
-    "@types/node": "^24.10.1"
-  }
+  "packageManager": "pnpm@10.11.1"
 }

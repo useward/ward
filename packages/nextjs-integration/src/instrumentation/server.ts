@@ -18,7 +18,7 @@ import { spawn } from "node:child_process";
 const SERVICE_NAME = "nextjs-server-app";
 
 export async function register() {
-  const nextDoctorPrecess = spawn("node", ["@nextdoctor/server"]);
+  const nextDoctorPrecess = spawn("nextdoctor", []);
 
   const killNextDoctorIfNeeded = () => {
     if (nextDoctorPrecess && !nextDoctorPrecess.killed) {
