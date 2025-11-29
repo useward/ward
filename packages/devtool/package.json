@@ -14,13 +14,13 @@
   },
   "scripts": {
     "dev": "pnpm dev:server & pnpm dev:ui",
-    "dev:server": "tsx watch src/index.ts",
-    "dev:ui": "cd src/ui && pnpm install && pnpm run dev",
+    "dev:server": "tsx watch server/index.ts",
+    "dev:ui": "cd client && pnpm install && pnpm run dev",
     "build:server": "tsdown",
     "build": "pnpm build:server && pnpm build:ui",
-    "build:ui": "cd src/ui && pnpm install && pnpm run build",
+    "build:ui": "cd client && pnpm install && pnpm run build",
     "start": "pnpm start:server",
-    "start:ui": "cd src/ui && pnpm preview",
+    "start:ui": "cd client && pnpm preview",
     "start:server": "node dist/index.mjs"
   },
   "bin": {
@@ -41,6 +41,7 @@
     "@nextdoctor/shared": "workspace:*",
     "@types/better-sqlite3": "^7.6.13",
     "tsdown": "^0.16.7",
+    "tsx": "^4.20.6",
     "typescript": "^5.9.3"
   }
 }

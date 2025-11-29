@@ -1,4 +1,4 @@
 packages:
   - 'packages/*'
   - 'examples/*'
-  - 'packages/devtool/src/ui'
+  - 'packages/devtool/client'

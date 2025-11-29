@@ -11,6 +11,6 @@
     "noEmit": true,
     "strict": true
   },
-  "include": ["src"],
-  "exclude": ["src/ui"]
+  "include": ["server"],
+  "exclude": ["client"]
 }
