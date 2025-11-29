@@ -32,7 +32,8 @@
     "dist"
   ],
   "scripts": {
-    "build": "tsdown",
+    "copy:ui": "cp -R ../devtool/dist/ui ./dist/",
+    "build": "tsdown && pnpm copy:ui",
     "dev": "tsdown --watch",
     "typecheck": "tsc --noEmit",
     "test": "vitest",

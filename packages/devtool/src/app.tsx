@@ -1,8 +1,11 @@
 import { serve } from "@hono/node-server";
+import { serveStatic } from "@hono/node-server/serve-static";
 import { SERVER_PORT } from "@nextdoctor/shared";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { logger } from "hono/logger";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { metricsRouter, tracesRouter } from "./routes";
 
 export async function runServer() {
@@ -28,9 +31,17 @@ export async function runServer() {
     }),
   );
 
-  app.get("/", (c) => {
-    return c.render(<div>hi</div>);
-  });
+  const filename = fileURLToPath(import.meta.url);
+  const dirname = path.dirname(filename);
+
+  app.use("/*", serveStatic({ root: path.join(dirname, "../dist/ui") }));
+  app.get(
+    "/*",
+    serveStatic({
+      root: path.join(dirname, "../dist/ui"),
+      path: "index.html",
+    }),
+  );
 
   app.get("/health", (c) =>
     c.json({

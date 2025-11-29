@@ -1,14 +1,16 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "lib": ["ES2022", "DOM"],
-    "jsx": "react-jsx",
-    "jsxImportSource": "hono/jsx",
-    "allowJs": false,
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+
+    "isolatedModules": true,
     "esModuleInterop": true,
-    "outDir": "dist",
-    "declaration": false,
-    "declarationMap": false
+
+    "noEmit": true,
+    "strict": true
   },
-  "include": ["src"]
+  "include": ["src"],
+  "exclude": ["src/ui"]
 }
