@@ -15,7 +15,7 @@ export default defineConfig([
     noExternal: ["@nextdoctor/shared"],
   },
   {
-    entry: { nextdoctor: "@nextdoctor/server" },
+    entry: { nextdoctor: "@nextdoctor/devtool" },
     format: ["esm"],
     clean: true,
     external: [],

@@ -64,7 +64,7 @@
   },
   "devDependencies": {
     "@types/node": "^24.10.1",
-    "@nextdoctor/server": "workspace:*",
+    "@nextdoctor/devtool": "workspace:*",
     "@nextdoctor/shared": "workspace:*"
   },
   "peerDependencies": {
