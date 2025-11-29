@@ -16,26 +16,29 @@
     "dev": "pnpm dev:server & pnpm dev:ui",
     "dev:server": "tsx watch src/index.ts",
     "dev:ui": "cd src/ui && pnpm install && pnpm run dev",
-    "build:server": "tsdown src/index.ts --format esm --out-dir dist --clean",
+    "build:server": "tsdown",
     "build": "pnpm build:server && pnpm build:ui",
     "build:ui": "cd src/ui && pnpm install && pnpm run build",
     "start": "pnpm start:server",
     "start:ui": "cd src/ui && pnpm preview",
     "start:server": "node dist/index.mjs"
   },
+  "bin": {
+    "nextdoctor": "./dist/index.mjs"
+  },
   "author": "",
   "license": "ISC",
   "packageManager": "pnpm@10.11.1",
   "dependencies": {
     "@hono/node-server": "^1.19.6",
-    "@nextdoctor/core": "workspace:*",
-    "@nextdoctor/shared": "workspace:*",
     "@opentelemetry/otlp-transformer": "^0.208.0",
     "better-sqlite3": "^12.4.6",
     "effect": "^3.19.8",
     "hono": "^4.10.7"
   },
   "devDependencies": {
+    "@nextdoctor/core": "workspace:*",
+    "@nextdoctor/shared": "workspace:*",
     "@types/better-sqlite3": "^7.6.13",
     "tsdown": "^0.16.7",
     "typescript": "^5.9.3"

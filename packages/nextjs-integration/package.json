@@ -25,15 +25,11 @@
       "default": "./dist/instrumentation/client.mjs"
     }
   },
-  "bin": {
-    "nextdoctor": "./dist/nextdoctor.mjs"
-  },
   "files": [
     "dist"
   ],
   "scripts": {
-    "copy:ui": "cp -R ../devtool/dist/ui ./dist/",
-    "build": "tsdown && pnpm copy:ui",
+    "build": "tsdown",
     "dev": "tsdown --watch",
     "typecheck": "tsc --noEmit",
     "test": "vitest",
@@ -65,7 +61,6 @@
   },
   "devDependencies": {
     "@types/node": "^24.10.1",
-    "@nextdoctor/devtool": "workspace:*",
     "@nextdoctor/shared": "workspace:*"
   },
   "peerDependencies": {

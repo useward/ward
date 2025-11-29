@@ -13,22 +13,10 @@ import {
 } from "@opentelemetry/sdk-metrics";
 import { BatchSpanProcessor } from "@opentelemetry/sdk-trace-base";
 import { registerOTel } from "@vercel/otel";
-import { spawn } from "node:child_process";
 
 const SERVICE_NAME = "nextjs-server-app";
 
 export async function register() {
-  const nextDoctorPrecess = spawn("nextdoctor", []);
-
-  const killNextDoctorIfNeeded = () => {
-    if (nextDoctorPrecess && !nextDoctorPrecess.killed) {
-      nextDoctorPrecess.kill();
-    }
-  };
-
-  process.on("exit", killNextDoctorIfNeeded);
-  process.on("SIGINT", killNextDoctorIfNeeded);
-
   const serviceAttributes = {
     "service.name": SERVICE_NAME,
     "app.env": process.env.NODE_ENV || "development",

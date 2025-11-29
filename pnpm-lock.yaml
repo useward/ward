@@ -33,12 +33,6 @@ importers:
       '@hono/node-server':
         specifier: ^1.19.6
         version: 1.19.6(hono@4.10.7)
-      '@nextdoctor/core':
-        specifier: workspace:*
-        version: link:../core
-      '@nextdoctor/shared':
-        specifier: workspace:*
-        version: link:../shared
       '@opentelemetry/otlp-transformer':
         specifier: ^0.208.0
         version: 0.208.0(@opentelemetry/api@1.9.0)
@@ -52,6 +46,12 @@ importers:
         specifier: ^4.10.7
         version: 4.10.7
     devDependencies:
+      '@nextdoctor/core':
+        specifier: workspace:*
+        version: link:../core
+      '@nextdoctor/shared':
+        specifier: workspace:*
+        version: link:../shared
       '@types/better-sqlite3':
         specifier: ^7.6.13
         version: 7.6.13
@@ -186,9 +186,6 @@ importers:
         specifier: ^5.9.3
         version: 5.9.3
     devDependencies:
-      '@nextdoctor/devtool':
-        specifier: workspace:*
-        version: link:../devtool
       '@nextdoctor/shared':
         specifier: workspace:*
         version: link:../shared
