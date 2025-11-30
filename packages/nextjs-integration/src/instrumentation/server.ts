@@ -4,6 +4,7 @@ import { UndiciInstrumentation } from "@opentelemetry/instrumentation-undici";
 import { NodeSDK } from "@opentelemetry/sdk-node";
 import { BatchSpanProcessor } from "@opentelemetry/sdk-trace-base";
 import { OTLPHttpJsonTraceExporter, registerOTel } from "@vercel/otel";
+import { NextJsRscInstrumentation } from "./nextjs-rsc-instrumentation";
 
 const SERVICE_NAME = "nextjs-server-app";
 
@@ -30,6 +31,7 @@ export async function register() {
     instrumentations: [
       ...getNodeAutoInstrumentations(),
       new UndiciInstrumentation(),
+      new NextJsRscInstrumentation()
     ],
     spanProcessors: [spanProcessor],
   });
