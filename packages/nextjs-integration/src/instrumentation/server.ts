@@ -1,4 +1,7 @@
 import { SERVER_TRACES_ENDPOINT } from "@nextdoctor/shared";
+import { getNodeAutoInstrumentations } from "@opentelemetry/auto-instrumentations-node";
+import { UndiciInstrumentation } from "@opentelemetry/instrumentation-undici";
+import { NodeSDK } from "@opentelemetry/sdk-node";
 import { BatchSpanProcessor } from "@opentelemetry/sdk-trace-base";
 import { OTLPHttpJsonTraceExporter, registerOTel } from "@vercel/otel";
 
@@ -13,13 +16,23 @@ export async function register() {
   const traceExporter = new OTLPHttpJsonTraceExporter({
     url: SERVER_TRACES_ENDPOINT,
   });
-  const spanProcessor = new BatchSpanProcessor(traceExporter, {
-    scheduledDelayMillis: 100,
-  });
+  const spanProcessor = new BatchSpanProcessor(traceExporter);
 
   registerOTel({
     serviceName: SERVICE_NAME,
     attributes: serviceAttributes,
     spanProcessors: [spanProcessor],
   });
+
+  registerOTel({ serviceName: "my-next-app", spanProcessors: [spanProcessor] });
+
+  const sdk = new NodeSDK({
+    instrumentations: [
+      ...getNodeAutoInstrumentations(),
+      new UndiciInstrumentation(),
+    ],
+    spanProcessors: [spanProcessor],
+  });
+
+  sdk.start();
 }
