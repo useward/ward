@@ -1,4 +1,7 @@
-import { METRIC_ENDPOINT, TRACE_ENDPOINT } from "@nextdoctor/shared";
+import {
+  SERVER_METRICS_ENDPOINT,
+  SERVER_TRACES_ENDPOINT,
+} from "@nextdoctor/shared";
 import { OTLPMetricExporter } from "@opentelemetry/exporter-metrics-otlp-http";
 import { OTLPTraceExporter } from "@opentelemetry/exporter-trace-otlp-http";
 import {
@@ -30,7 +33,7 @@ export async function register() {
 
   const finalResource = serviceResource.merge(detectedResources);
 
-  const traceExporter = new OTLPTraceExporter({ url: TRACE_ENDPOINT });
+  const traceExporter = new OTLPTraceExporter({ url: SERVER_TRACES_ENDPOINT });
   const spanProcessor = new BatchSpanProcessor(traceExporter, {
     scheduledDelayMillis: 100,
   });
@@ -41,7 +44,9 @@ export async function register() {
     spanProcessors: [spanProcessor],
   });
 
-  const metricExporter = new OTLPMetricExporter({ url: METRIC_ENDPOINT });
+  const metricExporter = new OTLPMetricExporter({
+    url: SERVER_METRICS_ENDPOINT,
+  });
 
   const metricReader = new PeriodicExportingMetricReader({
     exporter: metricExporter,

@@ -1,7 +1,7 @@
 import {
-  METRIC_ENDPOINT,
+  CLIENT_METRICS_ENDPOINT,
+  CLIENT_TRACES_ENDPOINT,
   SERVER_PORT,
-  TRACE_ENDPOINT,
 } from "@nextdoctor/shared";
 import { ZoneContextManager } from "@opentelemetry/context-zone";
 import {
@@ -29,7 +29,7 @@ export function register() {
     "page.url": window.location.href,
   });
 
-  const traceExporter = new OTLPTraceExporter({ url: TRACE_ENDPOINT });
+  const traceExporter = new OTLPTraceExporter({ url: CLIENT_TRACES_ENDPOINT });
 
   const provider = new WebTracerProvider({
     resource,
@@ -49,7 +49,7 @@ export function register() {
   });
 
   const metricExporter = new OTLPMetricExporter({
-    url: METRIC_ENDPOINT,
+    url: CLIENT_METRICS_ENDPOINT,
     temporalityPreference: AggregationTemporalityPreference.DELTA,
   });
 

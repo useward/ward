@@ -1,2 +1,2 @@
-export { metricsRouter } from "./metrics";
-export { tracesRouter } from "./traces";
+export { createIngestionRouter } from "./ingestion";
+export { createTelemetryStreamRouter } from "./telemetry-stream";
