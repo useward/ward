@@ -1,3 +1,5 @@
+import type { IncomingMessage, ServerResponse } from "node:http";
+import { createRequire } from "node:module";
 import {
   type Attributes,
   type AttributeValue,
@@ -12,8 +14,6 @@ import {
   type InstrumentationConfig,
   isWrapped,
 } from "@opentelemetry/instrumentation";
-import type { IncomingMessage, ServerResponse } from "http";
-import { createRequire } from "module";
 
 const require = createRequire(__filename);
 
@@ -90,7 +90,7 @@ export class NextJsRscInstrumentation extends InstrumentationBase<Instrumentatio
 
       this._ensureUnwrapped(proto);
       this._wrap(proto, "render", this._createRenderPatch());
-      
+
       this._patchedProto = proto;
       this._log("Successfully patched NextServer.prototype.render");
     } catch (err) {
@@ -107,7 +107,9 @@ export class NextJsRscInstrumentation extends InstrumentationBase<Instrumentatio
 
   private _ensureUnwrapped(proto: NextServerPrototype): void {
     if (isWrapped(proto.render)) {
-      this._log("NextServer.prototype.render already wrapped; unwrapping first");
+      this._log(
+        "NextServer.prototype.render already wrapped; unwrapping first",
+      );
       this._unwrap(proto, "render");
     }
   }
@@ -189,7 +191,7 @@ export class NextJsRscInstrumentation extends InstrumentationBase<Instrumentatio
 
     if (typeof status === "number") {
       span.setAttribute("http.status_code", status);
-      
+
       if (status >= HTTP_SERVER_ERROR_THRESHOLD) {
         span.setStatus({
           code: SpanStatusCode.ERROR,
@@ -206,7 +208,7 @@ export class NextJsRscInstrumentation extends InstrumentationBase<Instrumentatio
     const isStream =
       response?.body instanceof ReadableStream ||
       (response?.body && typeof response.body.getReader === "function");
-    
+
     span.setAttribute("nextjs.rsc.is_stream", Boolean(isStream));
   }
 
@@ -215,9 +217,10 @@ export class NextJsRscInstrumentation extends InstrumentationBase<Instrumentatio
     response: NextServerRenderResponse,
   ): void {
     const headers = response?.headers;
-    const cacheHeader = headers instanceof Map
-      ? headers.get("x-nextjs-cache")
-      : headers?.get?.("x-nextjs-cache");
+    const cacheHeader =
+      headers instanceof Map
+        ? headers.get("x-nextjs-cache")
+        : headers?.get?.("x-nextjs-cache");
 
     if (cacheHeader) {
       span.setAttribute("nextjs.cache", cacheHeader);
@@ -229,7 +232,7 @@ export class NextJsRscInstrumentation extends InstrumentationBase<Instrumentatio
     err: unknown,
   ): void {
     const error = this._ensureError(err);
-    
+
     span.recordException(error);
     span.setStatus({
       code: SpanStatusCode.ERROR,
@@ -265,11 +268,11 @@ export class NextJsRscInstrumentation extends InstrumentationBase<Instrumentatio
     if (err instanceof Error) {
       return err;
     }
-    
+
     if (typeof err === "string") {
       return new Error(err);
     }
-    
+
     return new Error("Unknown error occurred");
   }
 
