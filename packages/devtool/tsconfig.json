@@ -5,6 +5,8 @@
     "module": "ESNext",
     "moduleResolution": "bundler",
 
+    "jsx": "react-jsx",
+
     "isolatedModules": true,
     "esModuleInterop": true,
 

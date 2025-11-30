@@ -1,5 +1,5 @@
 {
-  "name": "@nextdoctor/core",
+  "name": "@nextdoctor/domain",
   "private": "true",
   "version": "1.0.0",
   "exports": {
@@ -17,11 +17,6 @@
       "import": "./dist/errors/index.mjs",
       "default": "./dist/errors/index.mjs",
       "types": "./dist/errors/index.d.mts"
-    },
-    "./services": {
-      "import": "./dist/services/index.mjs",
-      "default": "./dist/services/index.mjs",
-      "types": "./dist/services/index.d.mts"
     }
   },
   "scripts": {

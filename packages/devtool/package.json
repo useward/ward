@@ -32,14 +32,13 @@
   "dependencies": {
     "@hono/node-server": "^1.19.6",
     "@opentelemetry/otlp-transformer": "^0.208.0",
-    "better-sqlite3": "^12.4.6",
     "effect": "^3.19.8",
     "hono": "^4.10.7"
   },
   "devDependencies": {
-    "@nextdoctor/core": "workspace:*",
+    "@nextdoctor/domain": "workspace:*",
     "@nextdoctor/shared": "workspace:*",
-    "@types/better-sqlite3": "^7.6.13",
+    "@types/node": "^24.10.1",
     "tsdown": "^0.16.7",
     "tsx": "^4.20.6",
     "typescript": "^5.9.3"
