@@ -1,21 +1,20 @@
-import type { IncomingMessage, ServerResponse } from "node:http";
-import { createRequire } from "node:module";
 import {
   type Attributes,
   type AttributeValue,
   context,
   diag,
+  type Span,
   SpanKind,
   SpanStatusCode,
   trace,
 } from "@opentelemetry/api";
 import {
-  InstrumentationBase,
-  type InstrumentationConfig,
-  isWrapped,
-} from "@opentelemetry/instrumentation";
-
-const require = createRequire(__filename);
+  ATTR_HTTP_REQUEST_METHOD,
+  ATTR_HTTP_RESPONSE_STATUS_CODE,
+  ATTR_SERVER_ADDRESS,
+  ATTR_URL_FULL,
+  ATTR_URL_PATH,
+} from "@opentelemetry/semantic-conventions";
 
 const DEFAULT_SPAN_NAME = "nextjs.rsc.render";
 const INSTRUMENTATION_NAME = "nextjs-rsc-instrumentation";
@@ -34,6 +33,12 @@ interface NextServerRenderResponse {
   body?: ReadableStream | { getReader?: () => unknown };
   headers?: Map<string, string> | { get?: (key: string) => string | null };
 }
+
+// Using 'any' to avoid importing Node.js 'http' module
+// biome-ignore lint/suspicious/noExplicitAny: Required to avoid Node.js dependencies
+type IncomingMessage = any;
+// biome-ignore lint/suspicious/noExplicitAny: Required to avoid Node.js dependencies
+type ServerResponse = any;
 
 type RenderMethod = (
   req: IncomingMessage,
@@ -54,122 +59,151 @@ interface NextServerModule {
   prototype?: NextServerPrototype;
 }
 
-export class NextJsRscInstrumentation extends InstrumentationBase<InstrumentationConfig> {
-  private readonly _userConfig: Required<NextJsRscInstrumentationConfig>;
-  private _patchedProto?: NextServerPrototype;
+// WeakMap to store original render methods without mutating Next.js prototypes
+const originalRenderMethods = new WeakMap<NextServerPrototype, RenderMethod>();
+
+export class NextJsRscInstrumentation {
+  readonly config: Required<NextJsRscInstrumentationConfig>;
+  #patchedProto?: NextServerPrototype;
+  #tracer: ReturnType<typeof trace.getTracer>;
+  #isEnabled = false;
 
   constructor(userConfig: NextJsRscInstrumentationConfig = {}) {
-    super(INSTRUMENTATION_NAME, INSTRUMENTATION_VERSION, {});
-    this._userConfig = {
+    this.config = {
       spanName: userConfig.spanName ?? DEFAULT_SPAN_NAME,
       debug: userConfig.debug ?? false,
     };
+
+    // Create tracer once during construction
+    this.#tracer = trace.getTracer(INSTRUMENTATION_NAME, INSTRUMENTATION_VERSION);
   }
 
-  override init() {
-    return [];
+  enable(): void {
+    // Idempotency check
+    if (this.#isEnabled) {
+      this.#log("Instrumentation already enabled, skipping");
+      return;
+    }
+
+    // Only patch if we're in a Node.js environment
+    // In Edge runtime, require() doesn't exist, so skip patching entirely
+    if (typeof require === "undefined" || typeof require.resolve === "undefined") {
+      this.#log("Skipping Next.js server patching: not in Node.js environment");
+      return;
+    }
+
+    this.#patchNextServer();
+    this.#isEnabled = true;
   }
 
-  override enable() {
-    super.enable();
-    this._patchNextServer();
+  disable(): void {
+    if (!this.#isEnabled) {
+      this.#log("Instrumentation not enabled, skipping disable");
+      return;
+    }
+
+    this.#unpatchNextServer();
+    this.#isEnabled = false;
   }
 
-  override disable() {
-    this._unpatchNextServer();
-    super.disable();
-  }
-
-  private _patchNextServer(): void {
+  #patchNextServer(): void {
     try {
-      const proto = this._resolveNextServerPrototype();
+      const proto = this.#resolveNextServerPrototype();
       if (!proto?.render) {
-        this._log("NextServer.prototype.render not found; skipping patch");
+        this.#log("NextServer.prototype.render not found; skipping patch");
         return;
       }
 
-      this._ensureUnwrapped(proto);
-      this._wrap(proto, "render", this._createRenderPatch());
+      // Store original using WeakMap to avoid mutating Next.js prototype
+      if (!originalRenderMethods.has(proto)) {
+        originalRenderMethods.set(proto, proto.render);
+      } else {
+        this.#log("NextServer.prototype.render already patched; re-using original");
+      }
 
-      this._patchedProto = proto;
-      this._log("Successfully patched NextServer.prototype.render");
+      const originalRender = originalRenderMethods.get(proto);
+      if (!originalRender) {
+        this.#log("Failed to retrieve original render method");
+        return;
+      }
+
+      proto.render = this.#createRenderPatch(originalRender);
+      this.#patchedProto = proto;
+
+      this.#log("Successfully patched NextServer.prototype.render");
     } catch (err) {
-      this._logError("Failed to patch next-server.js", err);
+      this.#logError("Failed to patch next-server.js", err);
     }
   }
 
-  private _resolveNextServerPrototype(): NextServerPrototype | undefined {
-    const nextServerPath = require.resolve(NEXT_SERVER_PATH);
-    const nextServerModule = require(nextServerPath) as NextServerModule;
-    const NextServer = nextServerModule?.default ?? nextServerModule;
-    return NextServer?.prototype;
-  }
-
-  private _ensureUnwrapped(proto: NextServerPrototype): void {
-    if (isWrapped(proto.render)) {
-      this._log(
-        "NextServer.prototype.render already wrapped; unwrapping first",
-      );
-      this._unwrap(proto, "render");
+  #resolveNextServerPrototype(): NextServerPrototype | undefined {
+    try {
+      // This code only runs in Node.js (checked in enable())
+      const nextServerPath = require.resolve(NEXT_SERVER_PATH);
+      const nextServerModule = require(nextServerPath) as NextServerModule;
+      const NextServer = nextServerModule?.default ?? nextServerModule;
+      return NextServer?.prototype;
+    } catch (err) {
+      this.#logError("Failed to resolve NextServer prototype", err);
+      return undefined;
     }
   }
 
-  private _unpatchNextServer(): void {
-    if (!this._patchedProto) return;
+  #unpatchNextServer(): void {
+    if (!this.#patchedProto) return;
 
     try {
-      if (isWrapped(this._patchedProto.render)) {
-        this._unwrap(this._patchedProto, "render");
-        this._log("Successfully unpatched NextServer.prototype.render");
+      const originalRender = originalRenderMethods.get(this.#patchedProto);
+      if (originalRender) {
+        this.#patchedProto.render = originalRender;
+        this.#log("Successfully unpatched NextServer.prototype.render");
       }
     } catch (err) {
-      this._logError("Failed to unpatch next-server.js", err);
+      this.#logError("Failed to unpatch next-server.js", err);
     } finally {
-      this._patchedProto = undefined;
+      this.#patchedProto = undefined;
     }
   }
 
-  private _createRenderPatch() {
+  #createRenderPatch(original: RenderMethod): RenderMethod {
     const instrumentation = this;
-    const tracer = this.tracer;
-    const spanName = this._userConfig?.spanName || DEFAULT_SPAN_NAME;
+    const spanName = this.config.spanName;
+    const tracer = this.#tracer; // Reuse tracer instance
 
-    return function patch(original: RenderMethod): RenderMethod {
-      return async function wrappedRender(
-        this: NextServerPrototype,
-        req: IncomingMessage,
-        res: ServerResponse,
-        parsedUrl?: URL,
-      ): Promise<NextServerRenderResponse> {
-        const attrs = instrumentation._buildAttributes(req, parsedUrl);
-        const span = tracer.startSpan(
-          spanName,
-          { kind: SpanKind.SERVER, attributes: attrs },
-          context.active(),
-        );
+    return async function wrappedRender(
+      this: unknown,
+      req: IncomingMessage,
+      res: ServerResponse,
+      parsedUrl?: URL,
+    ): Promise<NextServerRenderResponse> {
+      const attrs = instrumentation.#buildAttributes(req, parsedUrl);
+      const span = tracer.startSpan(
+        spanName,
+        { kind: SpanKind.SERVER, attributes: attrs },
+        context.active(),
+      );
 
-        const ctx = trace.setSpan(context.active(), span);
+      const ctx = trace.setSpan(context.active(), span);
 
-        return context.with(ctx, async () => {
-          const start = performance.now();
+      return context.with(ctx, async () => {
+        const start = performance.now();
 
-          try {
-            const response = await original.call(this, req, res, parsedUrl);
-            instrumentation._recordSuccess(span, response, res, start);
-            return response;
-          } catch (err) {
-            instrumentation._recordError(span, err);
-            throw err;
-          } finally {
-            span.end();
-          }
-        });
-      };
+        try {
+          const response = await original.call(this, req, res, parsedUrl);
+          instrumentation.#recordSuccess(span, response, res, start);
+          return response;
+        } catch (err) {
+          instrumentation.#recordError(span, err);
+          throw err;
+        } finally {
+          span.end();
+        }
+      });
     };
   }
 
-  private _recordSuccess(
-    span: ReturnType<typeof this.tracer.startSpan>,
+  #recordSuccess(
+    span: Span,
     response: NextServerRenderResponse,
     res: ServerResponse,
     startTime: number,
@@ -177,20 +211,20 @@ export class NextJsRscInstrumentation extends InstrumentationBase<Instrumentatio
     const duration = performance.now() - startTime;
     span.setAttribute("nextjs.render.duration_ms", duration);
 
-    this._setStatusCode(span, response, res);
-    this._setStreamingInfo(span, response);
-    this._setCacheInfo(span, response);
+    this.#setStatusCode(span, response, res);
+    this.#setStreamingInfo(span, response);
+    this.#setCacheInfo(span, response);
   }
 
-  private _setStatusCode(
-    span: ReturnType<typeof this.tracer.startSpan>,
+  #setStatusCode(
+    span: Span,
     response: NextServerRenderResponse,
     res: ServerResponse,
   ): void {
     const status = response?.status ?? response?.statusCode ?? res?.statusCode;
 
     if (typeof status === "number") {
-      span.setAttribute("http.status_code", status);
+      span.setAttribute(ATTR_HTTP_RESPONSE_STATUS_CODE, status);
 
       if (status >= HTTP_SERVER_ERROR_THRESHOLD) {
         span.setStatus({
@@ -201,8 +235,8 @@ export class NextJsRscInstrumentation extends InstrumentationBase<Instrumentatio
     }
   }
 
-  private _setStreamingInfo(
-    span: ReturnType<typeof this.tracer.startSpan>,
+  #setStreamingInfo(
+    span: Span,
     response: NextServerRenderResponse,
   ): void {
     const isStream =
@@ -212,10 +246,7 @@ export class NextJsRscInstrumentation extends InstrumentationBase<Instrumentatio
     span.setAttribute("nextjs.rsc.is_stream", Boolean(isStream));
   }
 
-  private _setCacheInfo(
-    span: ReturnType<typeof this.tracer.startSpan>,
-    response: NextServerRenderResponse,
-  ): void {
+  #setCacheInfo(span: Span, response: NextServerRenderResponse): void {
     const headers = response?.headers;
     const cacheHeader =
       headers instanceof Map
@@ -227,11 +258,8 @@ export class NextJsRscInstrumentation extends InstrumentationBase<Instrumentatio
     }
   }
 
-  private _recordError(
-    span: ReturnType<typeof this.tracer.startSpan>,
-    err: unknown,
-  ): void {
-    const error = this._ensureError(err);
+  #recordError(span: Span, err: unknown): void {
+    const error = this.#ensureError(err);
 
     span.recordException(error);
     span.setStatus({
@@ -240,31 +268,31 @@ export class NextJsRscInstrumentation extends InstrumentationBase<Instrumentatio
     });
   }
 
-  private _buildAttributes(req: IncomingMessage, parsedUrl?: URL): Attributes {
+  #buildAttributes(req: IncomingMessage, parsedUrl?: URL): Attributes {
     const attrs: Record<string, AttributeValue> = {
-      "http.method": req.method ?? "UNKNOWN",
+      [ATTR_HTTP_REQUEST_METHOD]: req.method ?? "UNKNOWN",
       "nextjs.kind": "render",
-      "nextjs.runtime": "node",
+      "nextjs.runtime": "nodejs",
     };
 
     if (req.url) {
-      attrs["url.full"] = req.url;
+      attrs[ATTR_URL_FULL] = req.url;
     }
 
     if (parsedUrl?.pathname) {
-      attrs["url.path"] = parsedUrl.pathname;
+      attrs[ATTR_URL_PATH] = parsedUrl.pathname;
       attrs["http.route"] = parsedUrl.pathname;
     }
 
     const host = req.headers?.host;
     if (host) {
-      attrs["server.address"] = host;
+      attrs[ATTR_SERVER_ADDRESS] = host;
     }
 
     return attrs;
   }
 
-  private _ensureError(err: unknown): Error {
+  #ensureError(err: unknown): Error {
     if (err instanceof Error) {
       return err;
     }
@@ -276,14 +304,14 @@ export class NextJsRscInstrumentation extends InstrumentationBase<Instrumentatio
     return new Error("Unknown error occurred");
   }
 
-  private _log(message: string): void {
-    if (this._userConfig?.debug) {
+  #log(message: string): void {
+    if (this.config.debug) {
       diag.debug(`[${INSTRUMENTATION_NAME}] ${message}`);
     }
   }
 
-  private _logError(message: string, err: unknown): void {
-    const error = this._ensureError(err);
+  #logError(message: string, err: unknown): void {
+    const error = this.#ensureError(err);
     diag.warn(`[${INSTRUMENTATION_NAME}] ${message}:`, error);
   }
 }

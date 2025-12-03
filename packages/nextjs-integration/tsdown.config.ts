@@ -13,5 +13,6 @@ export default defineConfig([
     clean: true,
     external: ["next", "next/server", "next/*"],
     noExternal: ["@nextdoctor/shared"],
+    platform: "browser",
   },
 ]);

@@ -1,17 +1,31 @@
 import { SERVER_TRACES_ENDPOINT } from "@nextdoctor/shared";
-import { getNodeAutoInstrumentations } from "@opentelemetry/auto-instrumentations-node";
-import { UndiciInstrumentation } from "@opentelemetry/instrumentation-undici";
-import { NodeSDK } from "@opentelemetry/sdk-node";
+import {
+  diag,
+  DiagConsoleLogger,
+  DiagLogLevel
+} from "@opentelemetry/api";
 import { BatchSpanProcessor } from "@opentelemetry/sdk-trace-base";
+import {
+  ATTR_SERVICE_NAME,
+  ATTR_SERVICE_VERSION
+} from "@opentelemetry/semantic-conventions";
 import { OTLPHttpJsonTraceExporter, registerOTel } from "@vercel/otel";
 import { NextJsRscInstrumentation } from "./nextjs-rsc-instrumentation";
 
 const SERVICE_NAME = "nextjs-server-app";
+const SERVICE_VERSION = "1.0.0";
 
 export async function register() {
+  if (process.env.NODE_ENV === "development") {
+    diag.setLogger(new DiagConsoleLogger(), DiagLogLevel.INFO);
+  }
+
   const serviceAttributes = {
-    "service.name": SERVICE_NAME,
+    [ATTR_SERVICE_NAME]: SERVICE_NAME,
+    [ATTR_SERVICE_VERSION]: SERVICE_VERSION,
     "app.env": process.env.NODE_ENV || "development",
+    "telemetry.sdk.language": "javascript",
+    "telemetry.sdk.name": "nextdoctor",
   };
 
   const traceExporter = new OTLPHttpJsonTraceExporter({
@@ -25,16 +39,6 @@ export async function register() {
     spanProcessors: [spanProcessor],
   });
 
-  registerOTel({ serviceName: "my-next-app", spanProcessors: [spanProcessor] });
-
-  const sdk = new NodeSDK({
-    instrumentations: [
-      ...getNodeAutoInstrumentations(),
-      new UndiciInstrumentation(),
-      new NextJsRscInstrumentation()
-    ],
-    spanProcessors: [spanProcessor],
-  });
-
-  sdk.start();
+  const rscInstrumentation = new NextJsRscInstrumentation({ debug: true });
+  rscInstrumentation.enable();
 }

@@ -5,24 +5,24 @@
   "type": "module",
   "exports": {
     ".": {
-      "types": "./dist/index.d.mts",
-      "import": "./dist/index.mjs",
-      "default": "./dist/index.mjs"
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
     },
     "./middleware": {
-      "types": "./dist/middleware.d.mts",
-      "import": "./dist/middleware.mjs",
-      "default": "./dist/middleware.mjs"
+      "types": "./dist/middleware.d.ts",
+      "import": "./dist/middleware.js",
+      "default": "./dist/middleware.js"
     },
     "./instrumentation": {
-      "types": "./dist/instrumentation/server.d.mts",
-      "import": "./dist/instrumentation/server.mjs",
-      "default": "./dist/instrumentation/server.mjs"
+      "types": "./dist/instrumentation/server.d.ts",
+      "import": "./dist/instrumentation/server.js",
+      "default": "./dist/instrumentation/server.js"
     },
     "./instrumentation-client": {
-      "types": "./dist/instrumentation/client.d.mts",
-      "import": "./dist/instrumentation/client.mjs",
-      "default": "./dist/instrumentation/client.mjs"
+      "types": "./dist/instrumentation/client.d.ts",
+      "import": "./dist/instrumentation/client.js",
+      "default": "./dist/instrumentation/client.js"
     }
   },
   "files": [
@@ -38,8 +38,8 @@
   "dependencies": {
     "@hono/node-server": "^1.19.6",
     "@opentelemetry/api": "^1.9.0",
-    "@opentelemetry/auto-instrumentations-node": "^0.67.2",
     "@opentelemetry/context-zone": "^2.2.0",
+    "@opentelemetry/core": "^2.2.0",
     "@opentelemetry/exporter-metrics-otlp-http": "^0.208.0",
     "@opentelemetry/exporter-metrics-otlp-proto": "^0.208.0",
     "@opentelemetry/exporter-trace-otlp-http": "^0.208.0",
@@ -52,12 +52,10 @@
     "@opentelemetry/otlp-transformer": "^0.208.0",
     "@opentelemetry/resources": "^2.2.0",
     "@opentelemetry/sdk-metrics": "^2.2.0",
-    "@opentelemetry/sdk-node": "^0.208.0",
     "@opentelemetry/sdk-trace-base": "^2.2.0",
     "@opentelemetry/sdk-trace-web": "^2.2.0",
     "@opentelemetry/semantic-conventions": "^1.38.0",
     "@vercel/otel": "^2.1.0",
-    "better-sqlite3": "^12.4.6",
     "hono": "^4.10.7",
     "tsdown": "^0.16.7",
     "typescript": "^5.9.3"
