@@ -5,8 +5,8 @@ export default defineConfig([
     entry: [
       "src/index.ts",
       "src/middleware.ts",
-      "src/instrumentation/client.ts",
-      "src/instrumentation/server.ts",
+      "src/instrumentation.client.ts",
+      "src/instrumentation.server.ts",
     ],
     format: ["esm"],
     dts: true,

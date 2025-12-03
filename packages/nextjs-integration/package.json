@@ -15,14 +15,14 @@
       "default": "./dist/middleware.js"
     },
     "./instrumentation": {
-      "types": "./dist/instrumentation/server.d.ts",
-      "import": "./dist/instrumentation/server.js",
-      "default": "./dist/instrumentation/server.js"
+      "types": "./dist/instrumentation.server.d.ts",
+      "import": "./dist/instrumentation.server.js",
+      "default": "./dist/instrumentation.server.js"
     },
     "./instrumentation-client": {
-      "types": "./dist/instrumentation/client.d.ts",
-      "import": "./dist/instrumentation/client.js",
-      "default": "./dist/instrumentation/client.js"
+      "types": "./dist/instrumentation.client.d.ts",
+      "import": "./dist/instrumentation.client.js",
+      "default": "./dist/instrumentation.client.js"
     }
   },
   "files": [

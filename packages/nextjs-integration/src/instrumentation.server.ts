@@ -1,22 +1,22 @@
 import { SERVER_TRACES_ENDPOINT } from "@nextdoctor/shared";
-import {
-  diag,
-  DiagConsoleLogger,
-  DiagLogLevel
-} from "@opentelemetry/api";
+import { DiagConsoleLogger, DiagLogLevel, diag } from "@opentelemetry/api";
 import { BatchSpanProcessor } from "@opentelemetry/sdk-trace-base";
 import {
   ATTR_SERVICE_NAME,
-  ATTR_SERVICE_VERSION
+  ATTR_SERVICE_VERSION,
 } from "@opentelemetry/semantic-conventions";
 import { OTLPHttpJsonTraceExporter, registerOTel } from "@vercel/otel";
-import { NextJsRscInstrumentation } from "./nextjs-rsc-instrumentation";
+import {
+  InstrumentationManager,
+  NextJsServerInstrumentation,
+  ReactCacheInstrumentation,
+} from "./instrumentations";
 
 const SERVICE_NAME = "nextjs-server-app";
 const SERVICE_VERSION = "1.0.0";
 
 export async function register() {
-  if (process.env.NODE_ENV === "development") {
+  if (process.env.NEXTDOCTOR_DEBUG) {
     diag.setLogger(new DiagConsoleLogger(), DiagLogLevel.INFO);
   }
 
@@ -39,6 +39,22 @@ export async function register() {
     spanProcessors: [spanProcessor],
   });
 
-  const rscInstrumentation = new NextJsRscInstrumentation({ debug: true });
-  rscInstrumentation.enable();
+  const manager = new InstrumentationManager();
+
+  manager.register(
+    new NextJsServerInstrumentation({
+      debug: !!process.env.NEXTDOCTOR_DEBUG,
+      spanName: "nextjs.rsc.render",
+    }),
+  );
+
+  manager.register(
+    new ReactCacheInstrumentation({
+      debug: !!process.env.NEXTDOCTOR_DEBUG,
+    }),
+  );
+
+  manager.enable();
+
+  diag.info(`[nextdoctor] Enabled ${manager.count} instrumentations`);
 }
