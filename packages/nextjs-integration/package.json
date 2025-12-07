@@ -23,6 +23,16 @@
       "types": "./dist/instrumentation.client.d.ts",
       "import": "./dist/instrumentation.client.js",
       "default": "./dist/instrumentation.client.js"
+    },
+    "./react": {
+      "types": "./dist/react.d.ts",
+      "import": "./dist/react.js",
+      "default": "./dist/react.js"
+    },
+    "./turbopack-config": {
+      "types": "./dist/turbopack-config.d.ts",
+      "import": "./dist/turbopack-config.js",
+      "default": "./dist/turbopack-config.js"
     }
   },
   "files": [
@@ -62,7 +72,9 @@
   },
   "devDependencies": {
     "@nextdoctor/shared": "workspace:*",
-    "@types/node": "^24.10.1"
+    "@types/node": "^24.10.1",
+    "@types/react": "^19.2.7",
+    "webpack": "^5.103.0"
   },
   "peerDependencies": {
     "next": ">=15.0.0",

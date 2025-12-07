@@ -9,7 +9,6 @@ import { OTLPHttpJsonTraceExporter, registerOTel } from "@vercel/otel";
 import {
   InstrumentationManager,
   NextJsServerInstrumentation,
-  ReactCacheInstrumentation,
 } from "./instrumentations";
 
 const SERVICE_NAME = "nextjs-server-app";
@@ -45,12 +44,6 @@ export async function register() {
     new NextJsServerInstrumentation({
       debug: !!process.env.NEXTDOCTOR_DEBUG,
       spanName: "nextjs.rsc.render",
-    }),
-  );
-
-  manager.register(
-    new ReactCacheInstrumentation({
-      debug: !!process.env.NEXTDOCTOR_DEBUG,
     }),
   );
 
