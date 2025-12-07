@@ -7,7 +7,7 @@ export function serveStatics(app: Hono) {
   const filename = fileURLToPath(import.meta.url);
   const dirname = path.dirname(filename);
 
-  app.use("/*", serveStatic({ root: path.join(dirname, "../dist/ui") }));
+  app.use("/*", serveStatic({ root: path.join(dirname, "../../dist/ui") }));
   app.get(
     "/*",
     serveStatic({
