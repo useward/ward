@@ -7,7 +7,7 @@ export default defineConfig([
       "src/middleware.ts",
       "src/instrumentation.client.ts",
       "src/instrumentation.server.ts",
-      "src/react.ts",
+      "src/server-react.ts",
       "src/turbopack-config.ts",
     ],
     format: ["esm"],

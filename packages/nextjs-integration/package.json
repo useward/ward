@@ -24,10 +24,10 @@
       "import": "./dist/instrumentation.client.js",
       "default": "./dist/instrumentation.client.js"
     },
-    "./react": {
-      "types": "./dist/react.d.ts",
-      "import": "./dist/react.js",
-      "default": "./dist/react.js"
+    "./server-react": {
+      "types": "./dist/server-react.d.ts",
+      "import": "./dist/server-react.js",
+      "default": "./dist/server-react.js"
     },
     "./turbopack-config": {
       "types": "./dist/turbopack-config.d.ts",

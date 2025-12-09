@@ -1,5 +1,7 @@
-import { AsyncLocalStorage } from "node:async_hooks";
-import { type Span } from "@opentelemetry/api";
+import type { Span } from "@opentelemetry/api";
+
+const AsyncLocalStorage =
+  (globalThis as unknown as { AsyncLocalStorage: typeof import("node:async_hooks").AsyncLocalStorage }).AsyncLocalStorage;
 
 export interface RequestContext {
   requestId: string;
