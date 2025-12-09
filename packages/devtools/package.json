@@ -1,5 +1,5 @@
 {
-  "name": "@nextdoctor/devtool",
+  "name": "@nextdoctor/devtools",
   "private": "true",
   "version": "1.0.0",
   "description": "",
@@ -36,7 +36,6 @@
     "hono": "^4.10.7"
   },
   "devDependencies": {
-    "@nextdoctor/domain": "workspace:*",
     "@nextdoctor/shared": "workspace:*",
     "@types/node": "^24.10.1",
     "tsdown": "^0.16.7",
