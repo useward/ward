@@ -9,13 +9,16 @@ import { OTLPHttpJsonTraceExporter, registerOTel } from "@vercel/otel";
 import {
   InstrumentationManager,
   NextJsServerInstrumentation,
-} from "./instrumentations";
+  FetchInstrumentation,
+} from "./instrumentations/index.js";
 
 const SERVICE_NAME = "nextjs-server-app";
 const SERVICE_VERSION = "1.0.0";
 
 export async function register() {
-  if (process.env.NEXTDOCTOR_DEBUG) {
+  const isDebug = !!process.env.NEXTDOCTOR_DEBUG;
+
+  if (isDebug) {
     diag.setLogger(new DiagConsoleLogger(), DiagLogLevel.INFO);
   }
 
@@ -42,8 +45,14 @@ export async function register() {
 
   manager.register(
     new NextJsServerInstrumentation({
-      debug: !!process.env.NEXTDOCTOR_DEBUG,
-      spanName: "nextjs.rsc.render",
+      debug: isDebug,
+      spanName: "nextjs.page.render",
+    }),
+  );
+
+  manager.register(
+    new FetchInstrumentation({
+      debug: isDebug,
     }),
   );
 

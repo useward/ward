@@ -1,4 +1,4 @@
-import type { Instrumentation } from "./base-instrumentation";
+import type { Instrumentation } from "./base-instrumentation.js";
 
 export class InstrumentationManager implements Instrumentation {
   private readonly instrumentations: Instrumentation[] = [];
