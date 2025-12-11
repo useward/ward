@@ -224,13 +224,26 @@ const computeTiming = (
   const serverStart = serverResources.length > 0 ? Math.min(...serverResources.map((r) => r.startTime)) : undefined
   const serverEnd = serverResources.length > 0 ? Math.max(...serverResources.map((r) => r.endTime)) : undefined
 
+  const minResourceStart = resources.length > 0 ? Math.min(...resources.map((r) => r.startTime)) : undefined
+  const navigationStart = minResourceStart ?? serverStart ?? 0
+
+  const responseStart = navigationEvent?.timing.responseStart !== undefined
+    ? navigationStart + navigationEvent.timing.responseStart
+    : undefined
+  const domContentLoaded = navigationEvent?.timing.domContentLoaded !== undefined
+    ? navigationStart + navigationEvent.timing.domContentLoaded
+    : undefined
+  const load = navigationEvent?.timing.load !== undefined
+    ? navigationStart + navigationEvent.timing.load
+    : undefined
+
   return {
-    navigationStart: navigationEvent?.timing.navigationStart ?? serverStart ?? 0,
+    navigationStart,
     serverStart,
     serverEnd,
-    responseStart: navigationEvent?.timing.responseStart,
-    domContentLoaded: navigationEvent?.timing.domContentLoaded,
-    load: navigationEvent?.timing.load,
+    responseStart,
+    domContentLoaded,
+    load,
   }
 }
 
