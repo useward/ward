@@ -5,6 +5,7 @@ const AsyncLocalStorage =
 
 export interface RequestContext {
   requestId: string;
+  sessionId: string;
   rootSpan: Span;
   url: string;
   startTime: number;
@@ -15,6 +16,10 @@ export const requestContextStorage = new AsyncLocalStorage<RequestContext>();
 
 export function generateRequestId(): string {
   return `req_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`;
+}
+
+export function generateSessionId(): string {
+  return `srv_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`;
 }
 
 export function getRequestContext(): RequestContext | undefined {

@@ -1,19 +1,21 @@
 import { useEffect } from "react"
 import { DevtoolHeader } from "@/components/devtool-header"
 import { ProfilingControls } from "@/components/profiling-controls"
-import { FlowsPanel } from "@/components/flows-panel"
+import { SessionsPanel } from "@/components/sessions-panel"
+import { ResourceDetails } from "@/components/resource-details"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useProfilingStore } from "@/lib/profiling-store"
 
 function App() {
-  const { flows, status, isConnected } = useProfilingStore()
+  const { sessions, status, isConnected, selectedSessionId, selectedResourceId } = useProfilingStore()
 
   useEffect(() => {
     document.documentElement.classList.add("dark")
   }, [])
 
-  const displayFlows = status === "idle" ? [] : flows
-  const totalSpans = displayFlows.reduce((sum, f) => sum + f.spans.length, 0)
+  const displaySessions = status === "idle" ? [] : sessions
+  const totalResources = displaySessions.reduce((sum, s) => sum + s.stats.totalResources, 0)
+  const selectedSession = displaySessions.find((s) => s.id === selectedSessionId) ?? null
 
   return (
     <div className="h-screen flex flex-col bg-background text-foreground">
@@ -21,16 +23,16 @@ function App() {
 
       <ProfilingControls />
 
-      <Tabs defaultValue="flows" className="flex-1 flex flex-col">
+      <Tabs defaultValue="sessions" className="flex-1 flex flex-col">
         <TabsList className="w-full justify-start rounded-none border-b border-border bg-transparent h-auto p-0">
           <TabsTrigger
-            value="flows"
+            value="sessions"
             className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-6 py-3"
           >
-            Request Flows
-            {displayFlows.length > 0 && (
+            Page Sessions
+            {displaySessions.length > 0 && (
               <span className="ml-2 text-xs text-muted-foreground">
-                ({displayFlows.length} flows, {totalSpans} spans)
+                ({displaySessions.length} sessions, {totalResources} resources)
               </span>
             )}
           </TabsTrigger>
@@ -57,12 +59,13 @@ function App() {
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="flows" className="flex-1 m-0">
-          {displayFlows.length === 0 ? (
-            <EmptyFlowsMessage status={status} isConnected={isConnected} />
+        <TabsContent value="sessions" className="flex-1 m-0">
+          {displaySessions.length === 0 ? (
+            <EmptySessionsMessage status={status} isConnected={isConnected} />
           ) : (
-            <FlowsPanel flows={displayFlows} />
+            <SessionsPanel />
           )}
+          {selectedSession && selectedResourceId && <ResourceDetails session={selectedSession} />}
         </TabsContent>
 
         <TabsContent value="renders" className="flex-1 m-0 p-4">
@@ -81,24 +84,24 @@ function App() {
   )
 }
 
-interface EmptyFlowsMessageProps {
+interface EmptySessionsMessageProps {
   status: "idle" | "recording" | "stopped"
   isConnected: boolean
 }
 
-function EmptyFlowsMessage({ status, isConnected }: EmptyFlowsMessageProps) {
+function EmptySessionsMessage({ status, isConnected }: EmptySessionsMessageProps) {
   const messages = {
     idle: {
-      primary: 'Click "Start Profiling" to begin capturing request flows',
+      primary: 'Click "Start Profiling" to begin capturing page sessions',
       secondary:
-        "Request flows combine server renders, data fetches, network transfer, and client hydration into unified waterfalls.",
+        "Page sessions show all server and client resources needed to render each page, with hierarchical timing waterfalls.",
     },
     recording: {
       primary: "Recording... Navigate your app to capture traces",
-      secondary: "Server and client traces will be automatically correlated into request flows.",
+      secondary: "Server and client traces will be automatically correlated by page session.",
     },
     stopped: {
-      primary: "No flows captured in this session",
+      primary: "No sessions captured",
       secondary: 'Click "Record Again" to start a new session',
     },
   }

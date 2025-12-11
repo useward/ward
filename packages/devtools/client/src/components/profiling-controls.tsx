@@ -6,7 +6,7 @@ import { formatSessionDuration } from "@/lib/view-models"
 import { cn } from "@/lib/utils"
 
 export function ProfilingControls() {
-  const { status, flows, isConnected, startProfiling, stopProfiling, clearFlows, sessionStartTime } = useProfilingStore()
+  const { status, sessions, isConnected, startProfiling, stopProfiling, clearSessions, sessionStartTime } = useProfilingStore()
   const [, forceUpdate] = useState(0)
 
   useEffect(() => {
@@ -15,9 +15,9 @@ export function ProfilingControls() {
     return () => clearInterval(interval)
   }, [status])
 
-  const totalSpans = flows.reduce((sum, f) => sum + f.spans.length, 0)
-  const errorCount = flows.reduce((sum, f) => sum + f.stats.errorCount, 0)
-  const avgDuration = flows.length > 0 ? Math.round(flows.reduce((sum, f) => sum + f.duration, 0) / flows.length) : 0
+  const totalResources = sessions.reduce((sum: number, s) => sum + s.stats.totalResources, 0)
+  const errorCount = sessions.reduce((sum: number, s) => sum + s.stats.errorCount, 0)
+  const avgDuration = sessions.length > 0 ? Math.round(sessions.reduce((sum: number, s) => sum + s.stats.totalDuration, 0) / sessions.length) : 0
 
   return (
     <div className="flex items-center gap-3 px-4 py-2 border-b border-border bg-card">
@@ -62,13 +62,13 @@ export function ProfilingControls() {
       )}
 
       <div className="flex items-center gap-4 ml-auto">
-        {flows.length > 0 && (
+        {sessions.length > 0 && (
           <div className="flex items-center gap-3 text-xs text-muted-foreground">
             <span>
-              <span className="font-mono">{flows.length}</span> {flows.length === 1 ? "flow" : "flows"}
+              <span className="font-mono">{sessions.length}</span> {sessions.length === 1 ? "session" : "sessions"}
             </span>
             <span>
-              <span className="font-mono">{totalSpans}</span> spans
+              <span className="font-mono">{totalResources}</span> resources
             </span>
             {errorCount > 0 && (
               <span className="text-red-400">
@@ -81,8 +81,8 @@ export function ProfilingControls() {
           </div>
         )}
 
-        {flows.length > 0 && (
-          <Button onClick={clearFlows} variant="ghost" size="sm" className="gap-2">
+        {sessions.length > 0 && (
+          <Button onClick={clearSessions} variant="ghost" size="sm" className="gap-2">
             <Trash2 className="size-4" />
             Clear
           </Button>

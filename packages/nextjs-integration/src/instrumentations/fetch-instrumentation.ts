@@ -9,7 +9,7 @@ import {
   ATTR_HTTP_RESPONSE_STATUS_CODE,
   ATTR_URL_FULL,
 } from "@opentelemetry/semantic-conventions";
-import { SERVER_PORT } from "@nextdoctor/shared";
+import { SERVER_PORT, ATTR_SESSION_ID } from "@nextdoctor/shared";
 import {
   getRequestContext,
   ATTR_REQUEST_ID,
@@ -90,6 +90,7 @@ export class FetchInstrumentation extends BaseInstrumentation {
 
       if (requestCtx) {
         attributes[ATTR_REQUEST_ID] = requestCtx.requestId;
+        attributes[ATTR_SESSION_ID] = requestCtx.sessionId;
         attributes["nextdoctor.parent.url"] = requestCtx.url;
         if (requestCtx.route) {
           attributes["nextdoctor.parent.route"] = requestCtx.route;

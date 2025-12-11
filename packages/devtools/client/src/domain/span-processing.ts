@@ -4,10 +4,12 @@ import type { OTLPExportTraceServiceRequest, OTLPSpan, KeyValue, AnyValue } from
 import { StatusCode } from "./otel-types"
 
 const ATTR_REQUEST_ID = "nextdoctor.request.id"
+const ATTR_SESSION_ID = "nextdoctor.session.id"
 const ATTR_SPAN_CATEGORY = "nextdoctor.span.category"
 
 interface RawSpan extends TraceSpan {
   readonly requestId: string | undefined
+  readonly sessionId: string | undefined
 }
 
 const extractAttributeValue = (value: AnyValue): string | number | boolean | undefined => {
@@ -101,6 +103,7 @@ export const convertOTLPSpan = (span: OTLPSpan, origin: SpanOrigin): RawSpan => 
   const customCategory = attributes[ATTR_SPAN_CATEGORY] as string | undefined
   const category = normalizeCategory(customCategory) ?? inferCategory(span.name, attributes)
   const requestId = attributes[ATTR_REQUEST_ID] as string | undefined
+  const sessionId = attributes[ATTR_SESSION_ID] as string | undefined
 
   return {
     id: span.spanId,
@@ -116,6 +119,7 @@ export const convertOTLPSpan = (span: OTLPSpan, origin: SpanOrigin): RawSpan => 
     attributes,
     children: [],
     requestId,
+    sessionId,
   }
 }
 
@@ -145,6 +149,17 @@ export const groupSpansByRequestId = (spans: ReadonlyArray<RawSpan>): Map<string
     if (span.requestId) {
       const existing = result.get(span.requestId) ?? []
       result.set(span.requestId, [...existing, span])
+    }
+  }
+  return result
+}
+
+export const groupSpansBySessionId = (spans: ReadonlyArray<RawSpan>): Map<string, RawSpan[]> => {
+  const result = new Map<string, RawSpan[]>()
+  for (const span of spans) {
+    if (span.sessionId) {
+      const existing = result.get(span.sessionId) ?? []
+      result.set(span.sessionId, [...existing, span])
     }
   }
   return result

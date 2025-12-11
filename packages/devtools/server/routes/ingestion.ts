@@ -1,5 +1,6 @@
 import type { EventEmitter } from "node:events";
 import { Hono } from "hono";
+import { NAVIGATION_EVENTS_ROUTE } from "@nextdoctor/shared";
 
 const origins = ["client", "server"];
 const entities = ["metrics", "traces"];
@@ -16,6 +17,14 @@ export function createIngestionRouter(eventEmitter: EventEmitter) {
 
       return c.json({ status: "ok" });
     });
+  });
+
+  ingestionRouter.post(NAVIGATION_EVENTS_ROUTE, async (c) => {
+    const data = await c.req.json();
+
+    eventEmitter.emit("navigation-event", data);
+
+    return c.json({ status: "ok" });
   });
 
   return ingestionRouter;

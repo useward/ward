@@ -29,43 +29,98 @@ export interface TraceSpan {
   readonly children: ReadonlyArray<TraceSpan>
 }
 
-export type FlowType = "page-load" | "navigation" | "api-call" | "background"
+export type ResourceType =
+  | "document"
+  | "fetch"
+  | "api"
+  | "database"
+  | "external"
+  | "rsc"
+  | "action"
+  | "render"
+  | "hydration"
+  | "cache"
+  | "other"
 
-export interface PhaseInfo {
-  readonly startTime: number
-  readonly endTime: number
-  readonly duration: number
-  readonly spans: ReadonlyArray<TraceSpan>
-}
+export type NavigationType = "initial" | "navigation" | "back-forward"
 
-export interface FlowPhases {
-  readonly serverDataFetch?: PhaseInfo
-  readonly serverRender?: PhaseInfo
-  readonly networkTransfer?: PhaseInfo
-  readonly hydration?: PhaseInfo
-  readonly clientDataFetch?: PhaseInfo
-}
-
-export interface FlowStats {
-  readonly serverSpanCount: number
-  readonly clientSpanCount: number
-  readonly errorCount: number
-  readonly cacheHits: number
-  readonly cacheMisses: number
-  readonly slowestSpan?: { readonly name: string; readonly duration: number }
-}
-
-export interface RequestFlow {
+export interface Resource {
   readonly id: string
-  readonly type: FlowType
+  readonly parentId: string | undefined
+  readonly sessionId: string
+  readonly type: ResourceType
+  readonly origin: SpanOrigin
   readonly name: string
   readonly url: string
   readonly startTime: number
   readonly endTime: number
   readonly duration: number
-  readonly spans: ReadonlyArray<TraceSpan>
-  readonly phases: FlowPhases
-  readonly stats: FlowStats
+  readonly status: SpanStatus
+  readonly statusCode: number | undefined
+  readonly size: number | undefined
+  readonly cached: boolean
+  readonly initiator: string | undefined
+  readonly children: ReadonlyArray<Resource>
+  readonly attributes: Record<string, string | number | boolean>
+}
+
+export interface PageTiming {
+  readonly navigationStart: number
+  readonly serverStart: number | undefined
+  readonly serverEnd: number | undefined
+  readonly responseStart: number | undefined
+  readonly domContentLoaded: number | undefined
+  readonly load: number | undefined
+}
+
+export interface SessionStats {
+  readonly totalResources: number
+  readonly serverResources: number
+  readonly clientResources: number
+  readonly totalDuration: number
+  readonly errorCount: number
+  readonly cachedCount: number
+  readonly slowestResource: { readonly name: string; readonly duration: number } | undefined
+}
+
+export interface PageSession {
+  readonly id: string
+  readonly url: string
+  readonly route: string
+  readonly navigationType: NavigationType
+  readonly previousSessionId: string | undefined
+  readonly timing: PageTiming
+  readonly resources: ReadonlyArray<Resource>
+  readonly rootResources: ReadonlyArray<Resource>
+  readonly stats: SessionStats
 }
 
 export type ProfilingStatus = "idle" | "recording" | "stopped"
+
+export interface NavigationEvent {
+  readonly sessionId: string
+  readonly url: string
+  readonly route: string
+  readonly navigationType: NavigationType
+  readonly previousSessionId: string | undefined
+  readonly timing: {
+    readonly navigationStart: number
+    readonly responseStart: number | undefined
+    readonly domContentLoaded: number | undefined
+    readonly load: number | undefined
+  }
+}
+
+export interface ResourceFilterState {
+  readonly search: string
+  readonly types: ReadonlyArray<ResourceType>
+  readonly origins: ReadonlyArray<SpanOrigin>
+  readonly minDuration: number
+  readonly showErrorsOnly: boolean
+}
+
+export interface ZoomPanState {
+  readonly zoom: number
+  readonly panOffset: number
+  readonly viewportWidth: number
+}

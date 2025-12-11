@@ -7,7 +7,7 @@ import * as Stream from "effect/Stream"
 import type { Scope } from "effect/Scope"
 import type { OTLPExportTraceServiceRequest } from "./otel-types"
 import { extractSpansFromPayload, type RawSpan } from "./span-processing"
-import type { SpanOrigin } from "./types"
+import type { SpanOrigin, NavigationEvent, NavigationType } from "./types"
 
 export class TelemetryClientConfig extends Context.Tag("TelemetryClientConfig")<
   TelemetryClientConfig,
@@ -51,8 +51,30 @@ const parseTraceData = (data: string, origin: SpanOrigin): Option.Option<Telemet
   }
 }
 
+const parseNavigationEvent = (data: string): Option.Option<NavigationEvent> => {
+  try {
+    const parsed = JSON.parse(data)
+    return Option.some({
+      sessionId: parsed.sessionId,
+      url: parsed.url,
+      route: parsed.route,
+      navigationType: parsed.navigationType as NavigationType,
+      previousSessionId: parsed.previousSessionId ?? undefined,
+      timing: {
+        navigationStart: parsed.timing.navigationStart,
+        responseStart: parsed.timing.responseStart ?? undefined,
+        domContentLoaded: parsed.timing.domContentLoaded ?? undefined,
+        load: parsed.timing.load ?? undefined,
+      },
+    })
+  } catch {
+    return Option.none()
+  }
+}
+
 export interface TelemetryClient {
   readonly events: Stream.Stream<TelemetryEvent, TelemetryError>
+  readonly navigationEvents: Stream.Stream<NavigationEvent, TelemetryError>
   readonly connectionStatus: Stream.Stream<boolean, never>
 }
 
@@ -64,15 +86,21 @@ export class TelemetryClientService extends Context.Tag("TelemetryClientService"
 const createEventSourceStream = (
   url: string
 ): Effect.Effect<
-  { events: Stream.Stream<TelemetryEvent, TelemetryError>; connectionStatus: Stream.Stream<boolean> },
+  {
+    events: Stream.Stream<TelemetryEvent, TelemetryError>
+    navigationEvents: Stream.Stream<NavigationEvent, TelemetryError>
+    connectionStatus: Stream.Stream<boolean>
+  },
   never,
   Scope
 > =>
   Effect.gen(function* () {
     const eventQueue = yield* Queue.unbounded<TelemetryEvent>()
+    const navigationQueue = yield* Queue.unbounded<NavigationEvent>()
     const connectionQueue = yield* Queue.unbounded<boolean>()
 
     const offerEvent = (event: TelemetryEvent) => Effect.runSync(Queue.offer(eventQueue, event))
+    const offerNavigation = (event: NavigationEvent) => Effect.runSync(Queue.offer(navigationQueue, event))
     const offerConnection = (status: boolean) => Effect.runSync(Queue.offer(connectionQueue, status))
 
     yield* Effect.acquireRelease(
@@ -96,6 +124,13 @@ const createEventSourceStream = (
           }
         })
 
+        es.addEventListener("navigation-event", (event: MessageEvent) => {
+          const parsed = parseNavigationEvent(event.data)
+          if (Option.isSome(parsed)) {
+            offerNavigation(parsed.value)
+          }
+        })
+
         return es
       }),
       (es) => Effect.sync(() => es.close())
@@ -103,6 +138,7 @@ const createEventSourceStream = (
 
     return {
       events: Stream.fromQueue(eventQueue),
+      navigationEvents: Stream.fromQueue(navigationQueue),
       connectionStatus: Stream.fromQueue(connectionQueue),
     }
   })

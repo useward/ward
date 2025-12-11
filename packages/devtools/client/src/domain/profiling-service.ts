@@ -6,14 +6,14 @@ import * as Layer from "effect/Layer"
 import * as PubSub from "effect/PubSub"
 import * as Ref from "effect/Ref"
 import * as Stream from "effect/Stream"
-import { buildFlow, sortFlowsByTime } from "./flow-processing"
+import { buildPageSession, sortSessionsByTime } from "./session-processing"
 import type { RawSpan } from "./span-processing"
 import { TelemetryClientService, type TelemetryError, type TelemetryEvent } from "./telemetry-client"
-import type { RequestFlow } from "./types"
+import type { PageSession, NavigationEvent } from "./types"
 
 export class ProfilingServiceConfig extends Context.Tag("ProfilingServiceConfig")<
   ProfilingServiceConfig,
-  { readonly debounceMs: number; readonly maxSpansPerTrace: number }
+  { readonly debounceMs: number; readonly maxSpansPerSession: number }
 >() {}
 
 export interface SpanProcessingError {
@@ -30,48 +30,136 @@ export type ProfilingError = SpanProcessingError | TelemetryError
 
 interface ProfilingState {
   readonly spans: Map<string, RawSpan>
-  readonly traceSpans: Map<string, Set<string>>
-  readonly flows: Map<string, RequestFlow>
+  readonly sessionSpans: Map<string, Set<string>>
+  readonly orphanSpans: Set<string>
+  readonly sessions: Map<string, PageSession>
+  readonly navigationEvents: Map<string, NavigationEvent>
 }
 
 const emptyState = (): ProfilingState => ({
   spans: new Map(),
-  traceSpans: new Map(),
-  flows: new Map(),
+  sessionSpans: new Map(),
+  orphanSpans: new Set(),
+  sessions: new Map(),
+  navigationEvents: new Map(),
 })
+
+const findSessionIdFromParent = (state: ProfilingState, span: RawSpan): string | undefined => {
+  if (span.sessionId) return span.sessionId
+
+  if (span.parentId) {
+    const parentSpan = state.spans.get(span.parentId)
+    if (parentSpan) {
+      const parentSessionId = findSessionIdFromParent(state, parentSpan)
+      if (parentSessionId) return parentSessionId
+    }
+  }
+
+  return undefined
+}
+
+const assignSpanToSession = (state: ProfilingState, spanId: string): boolean => {
+  const span = state.spans.get(spanId)
+  if (!span) return false
+
+  const sessionId = findSessionIdFromParent(state, span)
+  if (!sessionId) return false
+
+  if (!state.sessionSpans.has(sessionId)) {
+    state.sessionSpans.set(sessionId, new Set())
+  }
+  state.sessionSpans.get(sessionId)!.add(spanId)
+  state.orphanSpans.delete(spanId)
+  return true
+}
+
+const tryAssignOrphans = (state: ProfilingState): void => {
+  const orphansToRetry = [...state.orphanSpans]
+  for (const spanId of orphansToRetry) {
+    assignSpanToSession(state, spanId)
+  }
+}
 
 const ingestSpan = (state: ProfilingState, span: RawSpan): ProfilingState => {
   state.spans.set(span.id, span)
 
-  if (!state.traceSpans.has(span.traceId)) {
-    state.traceSpans.set(span.traceId, new Set())
+  const assigned = assignSpanToSession(state, span.id)
+  if (!assigned) {
+    state.orphanSpans.add(span.id)
   }
-  state.traceSpans.get(span.traceId)!.add(span.id)
+
+  if (span.sessionId) {
+    tryAssignOrphans(state)
+  }
 
   return state
 }
 
-const processFlows = (state: ProfilingState): ReadonlyArray<RequestFlow> => {
-  const newFlows = new Map(state.flows)
+const ingestNavigationEvent = (state: ProfilingState, event: NavigationEvent): ProfilingState => {
+  state.navigationEvents.set(event.sessionId, event)
+  return state
+}
 
-  for (const [traceId, spanIds] of state.traceSpans) {
-    const traceSpanList = [...spanIds]
+const isValidSessionId = (sessionId: string): boolean => {
+  return sessionId.startsWith("nav_") || sessionId.startsWith("srv_")
+}
+
+const processSessions = (state: ProfilingState): ReadonlyArray<PageSession> => {
+  const newSessions = new Map(state.sessions)
+
+  for (const [sessionId, spanIds] of state.sessionSpans) {
+    if (!isValidSessionId(sessionId)) continue
+
+    const sessionSpanList = [...spanIds]
       .map((id) => state.spans.get(id))
       .filter((s): s is RawSpan => s !== undefined)
 
-    if (traceSpanList.length === 0) continue
+    if (sessionSpanList.length === 0) continue
 
-    const flow = buildFlow(`trace_${traceId}`, traceSpanList)
-    if (flow) {
-      newFlows.set(flow.id, flow)
+    const navigationEvent = state.navigationEvents.get(sessionId)
+    const session = buildPageSession(sessionId, sessionSpanList, navigationEvent)
+    if (session) {
+      newSessions.set(session.id, session)
     }
   }
 
-  return sortFlowsByTime([...newFlows.values()])
+  for (const [sessionId, navEvent] of state.navigationEvents) {
+    if (!newSessions.has(sessionId) && !state.sessionSpans.has(sessionId)) {
+      const emptySession: PageSession = {
+        id: sessionId,
+        url: navEvent.url,
+        route: navEvent.route,
+        navigationType: navEvent.navigationType,
+        previousSessionId: navEvent.previousSessionId,
+        timing: {
+          navigationStart: navEvent.timing.navigationStart,
+          serverStart: undefined,
+          serverEnd: undefined,
+          responseStart: navEvent.timing.responseStart,
+          domContentLoaded: navEvent.timing.domContentLoaded,
+          load: navEvent.timing.load,
+        },
+        resources: [],
+        rootResources: [],
+        stats: {
+          totalResources: 0,
+          serverResources: 0,
+          clientResources: 0,
+          totalDuration: 0,
+          errorCount: 0,
+          cachedCount: 0,
+          slowestResource: undefined,
+        },
+      }
+      newSessions.set(sessionId, emptySession)
+    }
+  }
+
+  return sortSessionsByTime([...newSessions.values()])
 }
 
 export interface ProfilingService {
-  readonly flows: Stream.Stream<ReadonlyArray<RequestFlow>, ProfilingError>
+  readonly sessions: Stream.Stream<ReadonlyArray<PageSession>, ProfilingError>
   readonly clear: Effect.Effect<void>
 }
 
@@ -86,15 +174,15 @@ export const ProfilingServiceLive = Layer.scoped(
     const config = yield* ProfilingServiceConfig
     const telemetryClient = yield* TelemetryClientService
     const stateRef = yield* Ref.make(emptyState())
-    const flowsPubSub = yield* PubSub.unbounded<ReadonlyArray<RequestFlow>>()
+    const sessionsPubSub = yield* PubSub.unbounded<ReadonlyArray<PageSession>>()
 
     const processAndPublish = pipe(
       Ref.get(stateRef),
-      Effect.map(processFlows),
-      Effect.flatMap((flows) => PubSub.publish(flowsPubSub, flows))
+      Effect.map(processSessions),
+      Effect.flatMap((sessions) => PubSub.publish(sessionsPubSub, sessions))
     )
 
-    const ingestEvent = (event: TelemetryEvent) =>
+    const ingestTelemetryEvent = (event: TelemetryEvent) =>
       pipe(
         Ref.update(stateRef, (state) => {
           let newState = state
@@ -106,25 +194,38 @@ export const ProfilingServiceLive = Layer.scoped(
         Effect.zipRight(processAndPublish)
       )
 
+    const ingestNavEvent = (event: NavigationEvent) =>
+      pipe(
+        Ref.update(stateRef, (state) => ingestNavigationEvent(state, event)),
+        Effect.zipRight(processAndPublish)
+      )
+
     yield* pipe(
       telemetryClient.events,
-      Stream.mapEffect(ingestEvent),
+      Stream.mapEffect(ingestTelemetryEvent),
       Stream.runDrain,
       Effect.forkScoped
     )
 
-    const flows = pipe(
-      Stream.fromPubSub(flowsPubSub),
+    yield* pipe(
+      telemetryClient.navigationEvents,
+      Stream.mapEffect(ingestNavEvent),
+      Stream.runDrain,
+      Effect.forkScoped
+    )
+
+    const sessions = pipe(
+      Stream.fromPubSub(sessionsPubSub),
       Stream.debounce(Duration.millis(config.debounceMs))
     )
 
     const clear = Ref.set(stateRef, emptyState())
 
-    return { flows, clear }
+    return { sessions, clear }
   })
 )
 
-export const ProfilingServiceConfigLive = (debounceMs: number, maxSpansPerTrace: number) =>
-  Layer.succeed(ProfilingServiceConfig, { debounceMs, maxSpansPerTrace })
+export const ProfilingServiceConfigLive = (debounceMs: number, maxSpansPerSession: number) =>
+  Layer.succeed(ProfilingServiceConfig, { debounceMs, maxSpansPerSession })
 
 export const DefaultProfilingServiceConfig = ProfilingServiceConfigLive(500, 1000)

@@ -14,8 +14,10 @@ import {
   ATTR_URL_FULL,
   ATTR_URL_PATH,
 } from "@opentelemetry/semantic-conventions";
+import { SESSION_ID_HEADER, ATTR_SESSION_ID } from "@nextdoctor/shared";
 import {
   generateRequestId,
+  generateSessionId,
   runWithRequestContext,
   type RequestContext,
   ATTR_REQUEST_ID,
@@ -151,8 +153,27 @@ export class NextJsServerInstrumentation extends BaseInstrumentation {
       res: ServerResponse,
       parsedUrl?: URL,
     ): Promise<NextServerRenderResponse> {
-      const requestId = generateRequestId();
       const url = req.url || parsedUrl?.toString() || "/";
+
+      const isNoiseRequest =
+        url.includes("/manifest.json") ||
+        url.includes("/icon") ||
+        url.includes("/favicon") ||
+        url.includes("/apple-touch-icon") ||
+        url.includes("/_next/static") ||
+        url.includes("/_next/image") ||
+        /\.(ico|png|jpg|jpeg|gif|svg|webp|woff|woff2|css|js)(\?|$)/i.test(url);
+
+      if (isNoiseRequest) {
+        return original.call(this, req, res, parsedUrl);
+      }
+
+      const requestId = generateRequestId();
+
+      const incomingSessionId = req.headers?.[SESSION_ID_HEADER] as string | undefined;
+      const sessionId = incomingSessionId || generateSessionId();
+
+      console.log(`[nextdoctor-server] render: url=${url}, incomingSessionId=${incomingSessionId}, sessionId=${sessionId}`);
 
       const isApiRoute = url.includes("/api/") || url.includes("/_next/");
       const isRscRequest = req.headers?.["rsc"] === "1" ||
@@ -165,7 +186,7 @@ export class NextJsServerInstrumentation extends BaseInstrumentation {
         dynamicSpanName = "nextjs.rsc.render";
       }
 
-      const attrs = instrumentation.buildAttributes(req, parsedUrl, requestId, isRscRequest);
+      const attrs = instrumentation.buildAttributes(req, parsedUrl, requestId, sessionId, isRscRequest);
       const span = tracer.startSpan(
         dynamicSpanName,
         { kind: SpanKind.SERVER, attributes: attrs },
@@ -176,11 +197,16 @@ export class NextJsServerInstrumentation extends BaseInstrumentation {
 
       const requestContext: RequestContext = {
         requestId,
+        sessionId,
         rootSpan: span,
         url,
         startTime: Date.now(),
         route: parsedUrl?.pathname,
       };
+
+      if (!incomingSessionId) {
+        res.setHeader(SESSION_ID_HEADER, sessionId);
+      }
 
       return context.with(ctx, () => {
         return runWithRequestContext(requestContext, async () => {
@@ -271,6 +297,7 @@ export class NextJsServerInstrumentation extends BaseInstrumentation {
     req: IncomingMessage,
     parsedUrl?: URL,
     requestId?: string,
+    sessionId?: string,
     isRscRequest?: boolean,
   ): Attributes {
     const attrs: Record<string, AttributeValue> = {
@@ -282,6 +309,10 @@ export class NextJsServerInstrumentation extends BaseInstrumentation {
 
     if (requestId) {
       attrs[ATTR_REQUEST_ID] = requestId;
+    }
+
+    if (sessionId) {
+      attrs[ATTR_SESSION_ID] = sessionId;
     }
 
     if (req.url) {
