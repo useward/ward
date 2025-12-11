@@ -7,7 +7,7 @@ export function setupCors(app: Hono) {
     cors({
       origin: (origin) => origin ?? "http://localhost:3000",
       allowMethods: ["GET", "POST", "OPTIONS"],
-      allowHeaders: ["Content-Type", "Authorization"],
+      allowHeaders: ["Content-Type", "Authorization", "x-nextdoctor-session-id"],
       credentials: true,
     }),
   );
@@ -17,7 +17,7 @@ export function setupCors(app: Hono) {
       "Access-Control-Allow-Origin": c.req.header("Origin") ?? "",
       "Access-Control-Allow-Credentials": "true",
       "Access-Control-Allow-Methods": "GET,POST,OPTIONS",
-      "Access-Control-Allow-Headers": "Content-Type, Authorization",
+      "Access-Control-Allow-Headers": "Content-Type, Authorization, x-nextdoctor-session-id",
     }),
   );
 }
