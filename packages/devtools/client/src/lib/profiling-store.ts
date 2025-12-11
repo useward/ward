@@ -5,7 +5,9 @@ import { create } from "zustand"
 import { AppRuntime, getProfilingService } from "@/domain/runtime"
 import type { ProfilingStatus, PageSession, Resource, ResourceFilterState, ZoomPanState } from "@/domain"
 
-interface ProfilingStore {
+type StreamFiber = Fiber.RuntimeFiber<void, unknown>
+
+interface ProfilingStoreState {
   status: ProfilingStatus
   sessions: ReadonlyArray<PageSession>
   selectedSessionId: string | null
@@ -16,6 +18,10 @@ interface ProfilingStore {
   filters: ResourceFilterState
   zoomPan: ZoomPanState
   expandedResourceIds: Set<string>
+  streamFiber: StreamFiber | null
+}
+
+interface ProfilingStoreActions {
   startProfiling: () => void
   stopProfiling: () => void
   clearSessions: () => void
@@ -30,7 +36,7 @@ interface ProfilingStore {
   collapseAll: () => void
 }
 
-let streamFiber: Fiber.RuntimeFiber<void, unknown> | null = null
+type ProfilingStore = ProfilingStoreState & ProfilingStoreActions
 
 const defaultFilters: ResourceFilterState = {
   search: "",
@@ -46,7 +52,7 @@ const defaultZoomPan: ZoomPanState = {
   viewportWidth: 0,
 }
 
-export const useProfilingStore = create<ProfilingStore>((set, get) => ({
+const initialState: ProfilingStoreState = {
   status: "idle",
   sessions: [],
   selectedSessionId: null,
@@ -57,6 +63,17 @@ export const useProfilingStore = create<ProfilingStore>((set, get) => ({
   filters: defaultFilters,
   zoomPan: defaultZoomPan,
   expandedResourceIds: new Set(),
+  streamFiber: null,
+}
+
+const interruptFiber = (fiber: StreamFiber | null): void => {
+  if (fiber) {
+    Effect.runPromise(Fiber.interrupt(fiber))
+  }
+}
+
+export const useProfilingStore = create<ProfilingStore>((set, get) => ({
+  ...initialState,
 
   startProfiling: () => {
     const service = getProfilingService()
@@ -71,6 +88,7 @@ export const useProfilingStore = create<ProfilingStore>((set, get) => ({
       sessionStartTime: Date.now(),
       error: null,
       expandedResourceIds: new Set(),
+      streamFiber: null,
     })
 
     const program = service.sessions.pipe(
@@ -92,37 +110,25 @@ export const useProfilingStore = create<ProfilingStore>((set, get) => ({
       Stream.runDrain
     )
 
-    streamFiber = AppRuntime.runFork(program)
+    const fiber = AppRuntime.runFork(program)
+    set({ streamFiber: fiber })
   },
 
   stopProfiling: () => {
-    if (streamFiber) {
-      Effect.runPromise(Fiber.interrupt(streamFiber))
-      streamFiber = null
-    }
-    set({ status: "stopped", isConnected: false })
+    const { streamFiber } = get()
+    interruptFiber(streamFiber)
+    set({ status: "stopped", isConnected: false, streamFiber: null })
   },
 
   clearSessions: () => {
-    if (streamFiber) {
-      Effect.runPromise(Fiber.interrupt(streamFiber))
-      streamFiber = null
-    }
+    const { streamFiber } = get()
+    interruptFiber(streamFiber)
 
     const service = getProfilingService()
     Effect.runPromise(service.clear)
 
     set({
-      sessions: [],
-      selectedSessionId: null,
-      selectedResourceId: null,
-      status: "idle",
-      sessionStartTime: null,
-      isConnected: false,
-      error: null,
-      filters: defaultFilters,
-      zoomPan: defaultZoomPan,
-      expandedResourceIds: new Set(),
+      ...initialState,
     })
   },
 

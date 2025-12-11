@@ -1,4 +1,5 @@
 import type { Span } from "@opentelemetry/api";
+import { SERVER_SESSION_ID_PREFIX } from "@nextdoctor/shared";
 
 const AsyncLocalStorage =
   (globalThis as unknown as { AsyncLocalStorage: typeof import("node:async_hooks").AsyncLocalStorage }).AsyncLocalStorage;
@@ -19,7 +20,7 @@ export function generateRequestId(): string {
 }
 
 export function generateSessionId(): string {
-  return `srv_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`;
+  return `${SERVER_SESSION_ID_PREFIX}${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`;
 }
 
 export function getRequestContext(): RequestContext | undefined {

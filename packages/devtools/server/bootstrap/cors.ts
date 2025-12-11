@@ -1,5 +1,8 @@
 import type { Hono } from "hono";
 import { cors } from "hono/cors";
+import { SESSION_ID_HEADER } from "@nextdoctor/shared";
+
+const ALLOWED_HEADERS = ["Content-Type", "Authorization", SESSION_ID_HEADER];
 
 export function setupCors(app: Hono) {
   app.use(
@@ -7,17 +10,8 @@ export function setupCors(app: Hono) {
     cors({
       origin: (origin) => origin ?? "http://localhost:3000",
       allowMethods: ["GET", "POST", "OPTIONS"],
-      allowHeaders: ["Content-Type", "Authorization", "x-nextdoctor-session-id"],
+      allowHeaders: ALLOWED_HEADERS,
       credentials: true,
-    }),
-  );
-
-  app.options("*", (c) =>
-    c.text("", 200, {
-      "Access-Control-Allow-Origin": c.req.header("Origin") ?? "",
-      "Access-Control-Allow-Credentials": "true",
-      "Access-Control-Allow-Methods": "GET,POST,OPTIONS",
-      "Access-Control-Allow-Headers": "Content-Type, Authorization, x-nextdoctor-session-id",
     }),
   );
 }

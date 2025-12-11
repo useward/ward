@@ -1,4 +1,3 @@
-import { pipe, Array as A } from "effect"
 import type {
   Resource,
   ResourceType,
@@ -157,31 +156,59 @@ const flattenResourceTree = (roots: ReadonlyArray<Resource>): ReadonlyArray<Reso
 }
 
 const computeStats = (resources: ReadonlyArray<Resource>): SessionStats => {
-  const serverResources = resources.filter((r) => r.origin === "server").length
-  const clientResources = resources.filter((r) => r.origin === "client").length
-  const errorCount = resources.filter((r) => r.status === "error").length
-  const cachedCount = resources.filter((r) => r.cached).length
+  if (resources.length === 0) {
+    return {
+      totalResources: 0,
+      serverResources: 0,
+      clientResources: 0,
+      totalDuration: 0,
+      errorCount: 0,
+      cachedCount: 0,
+      slowestResource: undefined,
+    }
+  }
 
-  const totalDuration =
-    resources.length > 0
-      ? Math.max(...resources.map((r) => r.endTime)) - Math.min(...resources.map((r) => r.startTime))
-      : 0
+  let serverResources = 0
+  let clientResources = 0
+  let errorCount = 0
+  let cachedCount = 0
+  let minStartTime = resources[0].startTime
+  let maxEndTime = resources[0].endTime
+  let slowestResource: { name: string; duration: number } | undefined = undefined
 
-  const slowestResource = pipe(
-    resources,
-    A.reduce(undefined as { name: string; duration: number } | undefined, (acc, resource) => {
-      if (!acc || resource.duration > acc.duration) {
-        return { name: resource.name, duration: resource.duration }
-      }
-      return acc
-    })
-  )
+  for (const resource of resources) {
+    if (resource.origin === "server") {
+      serverResources++
+    } else {
+      clientResources++
+    }
+
+    if (resource.status === "error") {
+      errorCount++
+    }
+
+    if (resource.cached) {
+      cachedCount++
+    }
+
+    if (resource.startTime < minStartTime) {
+      minStartTime = resource.startTime
+    }
+
+    if (resource.endTime > maxEndTime) {
+      maxEndTime = resource.endTime
+    }
+
+    if (!slowestResource || resource.duration > slowestResource.duration) {
+      slowestResource = { name: resource.name, duration: resource.duration }
+    }
+  }
 
   return {
     totalResources: resources.length,
     serverResources,
     clientResources,
-    totalDuration,
+    totalDuration: maxEndTime - minStartTime,
     errorCount,
     cachedCount,
     slowestResource,

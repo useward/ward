@@ -4,5 +4,6 @@ export type { AnyValue, KeyValue, OTLPExportTraceServiceRequest, OTLPSpan } from
 export * from "./span-processing"
 export * from "./session-processing"
 export * from "./telemetry-client"
+export * from "./telemetry-schemas"
 export * from "./profiling-service"
 export * from "./runtime"

@@ -173,8 +173,6 @@ export class NextJsServerInstrumentation extends BaseInstrumentation {
       const incomingSessionId = req.headers?.[SESSION_ID_HEADER] as string | undefined;
       const sessionId = incomingSessionId || generateSessionId();
 
-      console.log(`[nextdoctor-server] render: url=${url}, incomingSessionId=${incomingSessionId}, sessionId=${sessionId}`);
-
       const isApiRoute = url.includes("/api/") || url.includes("/_next/");
       const isRscRequest = req.headers?.["rsc"] === "1" ||
                            req.headers?.accept?.includes("text/x-component");

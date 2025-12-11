@@ -1,6 +1,7 @@
 import { X, Server, Monitor, Clock, Database, Zap, AlertTriangle, CheckCircle, Link2 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { RESOURCE_TYPE_CONFIG, ORIGIN_CONFIG, formatDuration, getResourceConfig } from "@/lib/view-models"
+import { Z_INDEX } from "@/lib/design-tokens"
 import { useProfilingStore } from "@/lib/profiling-store"
 import type { Resource, PageSession } from "@/domain"
 
@@ -21,7 +22,10 @@ export function ResourceDetails({ session }: ResourceDetailsProps) {
   const typeConfig = RESOURCE_TYPE_CONFIG[resource.type]
 
   return (
-    <div className="fixed right-0 top-0 h-full w-[400px] bg-card border-l border-border shadow-xl z-50 flex flex-col">
+    <div
+      className="fixed right-0 top-0 h-full w-[400px] bg-card border-l border-border shadow-xl flex flex-col"
+      style={{ zIndex: Z_INDEX.modal }}
+    >
       <div className="flex items-center justify-between px-4 py-3 border-b border-border">
         <div className="flex items-center gap-2">
           <div className={cn("w-2 h-4 rounded-sm", resource.origin === "server" ? "bg-green-500" : "bg-blue-500")} />

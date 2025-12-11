@@ -23,5 +23,10 @@
     "@biomejs/biome": "^2.3.7",
     "@changesets/cli": "^2.29.7",
     "typescript": "^5.9.3"
+  },
+  "pnpm": {
+    "overrides": {
+      "vite": "npm:rolldown-vite@7.2.5"
+    }
   }
 }

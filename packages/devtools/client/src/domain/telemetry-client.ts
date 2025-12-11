@@ -7,7 +7,8 @@ import * as Stream from "effect/Stream"
 import type { Scope } from "effect/Scope"
 import type { OTLPExportTraceServiceRequest } from "./otel-types"
 import { extractSpansFromPayload, type RawSpan } from "./span-processing"
-import type { SpanOrigin, NavigationEvent, NavigationType } from "./types"
+import { parseNavigationEvent } from "./telemetry-schemas"
+import type { SpanOrigin, NavigationEvent } from "./types"
 
 export class TelemetryClientConfig extends Context.Tag("TelemetryClientConfig")<
   TelemetryClientConfig,
@@ -51,22 +52,11 @@ const parseTraceData = (data: string, origin: SpanOrigin): Option.Option<Telemet
   }
 }
 
-const parseNavigationEvent = (data: string): Option.Option<NavigationEvent> => {
+const parseNavigationEventFromString = (data: string): Option.Option<NavigationEvent> => {
   try {
     const parsed = JSON.parse(data)
-    return Option.some({
-      sessionId: parsed.sessionId,
-      url: parsed.url,
-      route: parsed.route,
-      navigationType: parsed.navigationType as NavigationType,
-      previousSessionId: parsed.previousSessionId ?? undefined,
-      timing: {
-        navigationStart: parsed.timing.navigationStart,
-        responseStart: parsed.timing.responseStart ?? undefined,
-        domContentLoaded: parsed.timing.domContentLoaded ?? undefined,
-        load: parsed.timing.load ?? undefined,
-      },
-    })
+    const validated = parseNavigationEvent(parsed)
+    return validated ? Option.some(validated) : Option.none()
   } catch {
     return Option.none()
   }
@@ -125,7 +115,7 @@ const createEventSourceStream = (
         })
 
         es.addEventListener("navigation-event", (event: MessageEvent) => {
-          const parsed = parseNavigationEvent(event.data)
+          const parsed = parseNavigationEventFromString(event.data)
           if (Option.isSome(parsed)) {
             offerNavigation(parsed.value)
           }

@@ -1,4 +1,4 @@
-import { useRef, useMemo, useCallback } from "react"
+import { useRef, useMemo, useCallback, memo } from "react"
 import { Server, Monitor } from "lucide-react"
 import { cn } from "@/lib/utils"
 import {
@@ -221,7 +221,7 @@ interface ResourceRowProps {
   onClick: (id: string) => void
 }
 
-function ResourceRow({
+const ResourceRow = memo(function ResourceRow({
   resource,
   sessionStartTime,
   totalDuration,
@@ -237,6 +237,10 @@ function ResourceRow({
 
   const displayName = useMemo(() => getResourceDisplayName(resource), [resource])
 
+  const handleClick = useCallback(() => {
+    onClick(resource.id)
+  }, [onClick, resource.id])
+
   return (
     <div
       className={cn(
@@ -244,7 +248,7 @@ function ResourceRow({
         isFiltered && "opacity-30",
         isSelected && "bg-accent/50"
       )}
-      onClick={() => onClick(resource.id)}
+      onClick={handleClick}
       title={`${resource.name}\nDuration: ${formatDuration(resource.duration)}\nOrigin: ${resource.origin}\nType: ${resource.type}`}
     >
       <div
@@ -281,7 +285,7 @@ function ResourceRow({
       </span>
     </div>
   )
-}
+})
 
 function WaterfallLegend() {
   return (

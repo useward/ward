@@ -6,6 +6,7 @@ import * as Layer from "effect/Layer"
 import * as PubSub from "effect/PubSub"
 import * as Ref from "effect/Ref"
 import * as Stream from "effect/Stream"
+import { isValidSessionId } from "@nextdoctor/shared"
 import { buildPageSession, sortSessionsByTime } from "./session-processing"
 import type { RawSpan } from "./span-processing"
 import { TelemetryClientService, type TelemetryError, type TelemetryEvent } from "./telemetry-client"
@@ -100,9 +101,6 @@ const ingestNavigationEvent = (state: ProfilingState, event: NavigationEvent): P
   return state
 }
 
-const isValidSessionId = (sessionId: string): boolean => {
-  return sessionId.startsWith("nav_") || sessionId.startsWith("srv_")
-}
 
 const processSessions = (state: ProfilingState): ReadonlyArray<PageSession> => {
   const newSessions = new Map(state.sessions)
