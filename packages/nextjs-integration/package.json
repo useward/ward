@@ -33,6 +33,11 @@
       "types": "./dist/turbopack-config.d.ts",
       "import": "./dist/turbopack-config.js",
       "default": "./dist/turbopack-config.js"
+    },
+    "./session-meta": {
+      "types": "./dist/session-meta.d.ts",
+      "import": "./dist/session-meta.js",
+      "default": "./dist/session-meta.js"
     }
   },
   "files": [

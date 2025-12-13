@@ -78,7 +78,6 @@ export class FetchInstrumentation extends BaseInstrumentation {
 
       const method = init?.method || "GET";
       const requestCtx = getRequestContext();
-
       const callSite = instrumentation.getCallSite();
 
       const attributes: Record<string, string | number | boolean> = {
@@ -235,7 +234,7 @@ export class FetchInstrumentation extends BaseInstrumentation {
     return "http";
   }
 
-  private createSpanName(method: string, url: string, category: string): string {
+  private createSpanName(method: string, url: string, _category: string): string {
     try {
       const parsed = new URL(url, "http://localhost");
       const path = parsed.pathname;

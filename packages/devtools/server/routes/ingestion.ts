@@ -12,9 +12,7 @@ export function createIngestionRouter(eventEmitter: EventEmitter) {
   combinedEntities.forEach(([origin, entity]) => {
     ingestionRouter.post(`/v1/${origin}-${entity}`, async (c) => {
       const data = await c.req.text();
-
       eventEmitter.emit("telemetry", { origin, entity, data });
-
       return c.json({ status: "ok" });
     });
   });

@@ -1,5 +1,5 @@
-import type { Span } from "@opentelemetry/api";
 import { SERVER_SESSION_ID_PREFIX } from "@nextdoctor/shared";
+import type { Span } from "@opentelemetry/api";
 
 const AsyncLocalStorage =
   (globalThis as unknown as { AsyncLocalStorage: typeof import("node:async_hooks").AsyncLocalStorage }).AsyncLocalStorage;
@@ -13,7 +13,14 @@ export interface RequestContext {
   route?: string;
 }
 
-export const requestContextStorage = new AsyncLocalStorage<RequestContext>();
+const STORAGE_KEY = Symbol.for("nextdoctor.requestContextStorage");
+const globalWithStorage = globalThis as unknown as Record<symbol, import("node:async_hooks").AsyncLocalStorage<RequestContext>>;
+
+if (!globalWithStorage[STORAGE_KEY]) {
+  globalWithStorage[STORAGE_KEY] = new AsyncLocalStorage<RequestContext>();
+}
+
+export const requestContextStorage = globalWithStorage[STORAGE_KEY];
 
 export function generateRequestId(): string {
   return `req_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`;

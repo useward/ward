@@ -1,31 +1,11 @@
-import {
-  type Attributes,
-  type AttributeValue,
-  context,
-  type Span,
-  SpanKind,
-  SpanStatusCode,
-  trace,
-} from "@opentelemetry/api";
-import {
-  ATTR_HTTP_REQUEST_METHOD,
-  ATTR_HTTP_RESPONSE_STATUS_CODE,
-  ATTR_SERVER_ADDRESS,
-  ATTR_URL_FULL,
-  ATTR_URL_PATH,
-} from "@opentelemetry/semantic-conventions";
-import { SESSION_ID_HEADER, ATTR_SESSION_ID } from "@nextdoctor/shared";
-import {
-  generateRequestId,
-  generateSessionId,
-  runWithRequestContext,
-  type RequestContext,
-  ATTR_REQUEST_ID,
-  ATTR_REQUEST_URL,
-  ATTR_REQUEST_ROUTE,
-  ATTR_SPAN_CATEGORY,
-} from "../request-context.js";
+import { ATTR_SESSION_ID, SESSION_ID_HEADER } from "@nextdoctor/shared";
+import { type Attributes, type AttributeValue, context, createContextKey, type Span, SpanKind, SpanStatusCode, trace } from "@opentelemetry/api";
+import { ATTR_HTTP_REQUEST_METHOD, ATTR_HTTP_RESPONSE_STATUS_CODE, ATTR_SERVER_ADDRESS, ATTR_URL_FULL, ATTR_URL_PATH } from "@opentelemetry/semantic-conventions";
+
+import { ATTR_REQUEST_ID, ATTR_REQUEST_ROUTE, ATTR_REQUEST_URL, ATTR_SPAN_CATEGORY, generateRequestId, generateSessionId, type RequestContext, runWithRequestContext } from "../request-context.js";
 import { BaseInstrumentation } from "./base-instrumentation.js";
+
+const SESSION_ID_CONTEXT_KEY = createContextKey("nextdoctor.sessionId");
 
 const DEFAULT_SPAN_NAME = "nextjs.page.render";
 const INSTRUMENTATION_NAME = "nextjs-server-instrumentation";
@@ -191,7 +171,8 @@ export class NextJsServerInstrumentation extends BaseInstrumentation {
         context.active(),
       );
 
-      const ctx = trace.setSpan(context.active(), span);
+      let ctx = trace.setSpan(context.active(), span);
+      ctx = ctx.setValue(SESSION_ID_CONTEXT_KEY, sessionId);
 
       const requestContext: RequestContext = {
         requestId,

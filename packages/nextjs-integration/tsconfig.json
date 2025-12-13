@@ -3,6 +3,7 @@
   "compilerOptions": {
     "moduleResolution": "bundler",
     "module": "esnext",
-    "lib": ["ES2022", "DOM"]
+    "lib": ["ES2022", "DOM"],
+    "jsx": "react-jsx"
   }
 }

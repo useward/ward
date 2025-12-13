@@ -89,9 +89,7 @@ const ingestSpan = (state: ProfilingState, span: RawSpan): ProfilingState => {
     state.orphanSpans.add(span.id)
   }
 
-  if (span.sessionId) {
-    tryAssignOrphans(state)
-  }
+  tryAssignOrphans(state)
 
   return state
 }
