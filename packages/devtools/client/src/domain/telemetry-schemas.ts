@@ -8,6 +8,8 @@ const NavigationTimingSchema = Schema.Struct({
   responseStart: Schema.NullOr(Schema.Number),
   domContentLoaded: Schema.NullOr(Schema.Number),
   load: Schema.NullOr(Schema.Number),
+  fcp: Schema.optionalWith(Schema.NullOr(Schema.Number), { default: () => null }),
+  lcp: Schema.optionalWith(Schema.NullOr(Schema.Number), { default: () => null }),
 })
 
 export const NavigationEventSchema = Schema.Struct({
@@ -30,6 +32,8 @@ export interface ParsedNavigationEvent {
     responseStart: number | undefined
     domContentLoaded: number | undefined
     load: number | undefined
+    fcp: number | undefined
+    lcp: number | undefined
   }
 }
 
@@ -50,6 +54,8 @@ export const parseNavigationEvent = (data: unknown): ParsedNavigationEvent | und
       responseStart: parsed.timing.responseStart ?? undefined,
       domContentLoaded: parsed.timing.domContentLoaded ?? undefined,
       load: parsed.timing.load ?? undefined,
+      fcp: parsed.timing.fcp ?? undefined,
+      lcp: parsed.timing.lcp ?? undefined,
     },
   }
 }

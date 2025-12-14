@@ -92,74 +92,190 @@ interface TimingPhasesBarProps {
   panOffset: number
 }
 
+interface Phase {
+  label: string
+  start: number
+  end: number
+  bg: string
+  border: string
+  text: string
+}
+
+function assignPhasesToRows(phases: Phase[]): Phase[][] {
+  const rows: Phase[][] = []
+
+  for (const phase of phases) {
+    let placed = false
+    for (const row of rows) {
+      const overlaps = row.some((p) => !(phase.end <= p.start || phase.start >= p.end))
+      if (!overlaps) {
+        row.push(phase)
+        placed = true
+        break
+      }
+    }
+    if (!placed) {
+      rows.push([phase])
+    }
+  }
+
+  return rows
+}
+
 function TimingPhasesBar({ session, zoom, panOffset }: TimingPhasesBarProps) {
   const { timing, stats } = session
   const totalDuration = stats.totalDuration
   const startTime = timing.navigationStart
 
-  const phases = [
-    {
-      label: "Server",
-      start: timing.serverStart,
-      end: timing.serverEnd,
-      bg: "bg-green-500/30",
-      border: "border-green-500",
-      text: "text-green-300",
-    },
+  const navTiming = session.timing
+
+  const allPhases: Array<{
+    label: string
+    start: number | undefined
+    end: number | undefined
+    bg: string
+    border: string
+    text: string
+  }> = [
     {
       label: "TTFB",
       start: startTime,
-      end: timing.responseStart ? startTime + timing.responseStart : undefined,
-      bg: "bg-gray-500/30",
-      border: "border-gray-500 border-dashed",
-      text: "text-gray-400",
+      end: navTiming.responseStart,
+      bg: "bg-slate-500/30",
+      border: "border-slate-400 border-dashed",
+      text: "text-slate-300",
     },
     {
       label: "DOM",
-      start: timing.responseStart ? startTime + timing.responseStart : undefined,
-      end: timing.domContentLoaded ? startTime + timing.domContentLoaded : undefined,
-      bg: "bg-blue-500/30",
-      border: "border-blue-500",
-      text: "text-blue-300",
+      start: navTiming.responseStart,
+      end: navTiming.domContentLoaded,
+      bg: "bg-sky-500/30",
+      border: "border-sky-400",
+      text: "text-sky-300",
     },
     {
       label: "Load",
-      start: timing.domContentLoaded ? startTime + timing.domContentLoaded : undefined,
-      end: timing.load ? startTime + timing.load : undefined,
-      bg: "bg-purple-500/30",
-      border: "border-purple-500",
-      text: "text-purple-300",
+      start: navTiming.domContentLoaded,
+      end: navTiming.load,
+      bg: "bg-violet-500/30",
+      border: "border-violet-400",
+      text: "text-violet-300",
     },
   ]
 
+  const validPhases: Phase[] = allPhases.filter(
+    (p): p is Phase => p.start !== undefined && p.end !== undefined && p.end - p.start > 0
+  )
+
+  const phaseRows = useMemo(() => assignPhasesToRows(validPhases), [validPhases])
+
+  const markers = [
+    {
+      label: "FCP",
+      time: timing.fcp,
+      color: "bg-teal-400",
+    },
+    {
+      label: "LCP",
+      time: timing.lcp,
+      color: "bg-orange-400",
+    },
+    {
+      label: "SPA-LCP",
+      time: timing.spaLcp !== undefined ? startTime + timing.spaLcp : undefined,
+      color: "bg-amber-400",
+    },
+  ]
+
+  const rowHeight = 8
+  const totalHeight = phaseRows.length * rowHeight
+
   return (
-    <div className="relative h-8 bg-card rounded overflow-hidden border border-border">
-      {phases.map(({ label, start, end, bg, border, text }) => {
-        if (start === undefined || end === undefined) return null
-        const duration = end - start
-        if (duration <= 0) return null
+    <div className="flex items-center gap-2 mt-4 mb-2">
+      <div className="w-1 shrink-0" />
+      <div className="min-w-45 max-w-45" />
+      <div
+        className="flex-1 relative bg-card rounded border border-border overflow-visible"
+        style={{ height: `${Math.max(totalHeight, 24)}px` }}
+      >
+        {phaseRows.map((row, rowIndex) =>
+          row.map(({ label, start, end, bg, border, text }) => {
+            const duration = end - start
+            const left = getTimelinePosition(start, startTime, totalDuration, zoom, panOffset)
+            const width = getTimelineWidth(duration, totalDuration, zoom)
 
-        const left = getTimelinePosition(start, startTime, totalDuration, zoom, panOffset)
-        const width = getTimelineWidth(duration, totalDuration, zoom)
+            if (left + width < 0 || left > 100) return null
 
-        if (left + width < 0 || left > 100) return null
+            const fitsInBar = width >= 8
 
-        return (
-          <div
-            key={label}
-            className={cn("absolute h-full border-r", bg, border)}
-            style={{
-              left: `${Math.max(0, left)}%`,
-              width: `${Math.min(width, 100 - Math.max(0, left))}%`,
-            }}
-            title={`${label}: ${formatDuration(duration)}`}
-          >
-            <span className={cn("absolute inset-0 flex items-center justify-center text-[10px] truncate px-1", text)}>
-              {label}
-            </span>
-          </div>
-        )
-      })}
+            return (
+              <div
+                key={label}
+                className={cn("absolute border-r group/phase", bg, border)}
+                style={{
+                  top: `${rowIndex * rowHeight}px`,
+                  height: `${rowHeight}px`,
+                  left: `${Math.max(0, left)}%`,
+                  width: `${Math.min(width, 100 - Math.max(0, left))}%`,
+                  minWidth: "4px",
+                }}
+                title={`${label}: ${formatDuration(duration)}`}
+              >
+                {fitsInBar ? (
+                  <span
+                    className={cn(
+                      "absolute inset-0 flex items-center justify-center text-[10px] font-medium truncate px-1",
+                      text
+                    )}
+                  >
+                    {label}
+                  </span>
+                ) : (
+                  <span
+                    className={cn(
+                      "absolute text-[8px] font-bold px-0.5 rounded-sm whitespace-nowrap opacity-0 group-hover/phase:opacity-100 transition-opacity",
+                      bg,
+                      text
+                    )}
+                    style={{ top: 0, left: 0, transform: "translateY(-100%)" }}
+                  >
+                    {label}
+                  </span>
+                )}
+              </div>
+            )
+          })
+        )}
+
+        {markers.map(({ label, time, color }) => {
+          if (time === undefined) return null
+
+          const left = getTimelinePosition(time, startTime, totalDuration, zoom, panOffset)
+          if (left < 0 || left > 100) return null
+
+          return (
+            <div
+              key={label}
+              className="absolute h-full flex flex-col items-center z-10 group/marker"
+              style={{ left: `${left}%`, transform: "translateX(-50%)" }}
+              title={`${label}: ${formatDuration(time - startTime)}`}
+            >
+              <div className={cn("w-1 h-full", color)} />
+              <span
+                className={cn(
+                  "absolute top-0 text-[8px] font-bold px-0.5 rounded-sm whitespace-nowrap opacity-0 group-hover/marker:opacity-100 transition-opacity",
+                  color,
+                  "text-black"
+                )}
+                style={{ transform: "translateY(-100%)" }}
+              >
+                {label}
+              </span>
+            </div>
+          )
+        })}
+      </div>
+      <div className="min-w-12.5 shrink-0" />
     </div>
   )
 }
@@ -287,6 +403,12 @@ const ResourceRow = memo(function ResourceRow({
   )
 })
 
+const TIMING_MARKERS = [
+  { label: "FCP", color: "bg-teal-400" },
+  { label: "LCP", color: "bg-orange-400" },
+  { label: "SPA-LCP", color: "bg-amber-400" },
+]
+
 function WaterfallLegend() {
   return (
     <div className="flex flex-wrap gap-3 pt-2 border-t border-border">
@@ -298,6 +420,13 @@ function WaterfallLegend() {
         <div className="w-1 h-3 rounded-sm bg-blue-500" />
         <span className="text-[10px] text-muted-foreground">Client</span>
       </div>
+      <div className="w-px h-3 bg-border" />
+      {TIMING_MARKERS.map(({ label, color }) => (
+        <div key={label} className="flex items-center gap-1.5">
+          <div className={cn("w-0.5 h-3", color)} />
+          <span className="text-[10px] text-muted-foreground">{label}</span>
+        </div>
+      ))}
       <div className="w-px h-3 bg-border" />
       {Object.entries(RESOURCE_TYPE_CONFIG).map(([type, cfg]) => (
         <div key={type} className="flex items-center gap-1.5">

@@ -37,6 +37,8 @@ interface NavigationEventPayload {
     responseStart: number | null;
     domContentLoaded: number | null;
     load: number | null;
+    fcp: number | null;
+    lcp: number | null;
   };
 }
 
@@ -48,6 +50,8 @@ interface SessionState {
   pendingNavigationSessionId: string | null;
   pendingNavigationPathname: string | null;
   navigationInProgress: boolean;
+  fcp: number | null;
+  lcp: number | null;
 }
 
 class SessionManager {
@@ -62,6 +66,8 @@ class SessionManager {
       pendingNavigationSessionId: null,
       pendingNavigationPathname: null,
       navigationInProgress: false,
+      fcp: null,
+      lcp: null,
     };
   }
 
@@ -130,6 +136,8 @@ class SessionManager {
         responseStart: null,
         domContentLoaded: null,
         load: null,
+        fcp: null,
+        lcp: null,
       },
     });
   }
@@ -198,6 +206,39 @@ class SessionManager {
     return this.state.currentSessionId!;
   }
 
+  setFcp(value: number): void {
+    this.state.fcp = value;
+  }
+
+  setLcp(value: number): void {
+    const previousLcp = this.state.lcp;
+    this.state.lcp = value;
+
+    if (previousLcp !== null && this.state.currentSessionId) {
+      this.sendWebVitalsUpdate();
+    }
+  }
+
+  private sendWebVitalsUpdate(): void {
+    if (!this.state.currentSessionId) return;
+
+    this.sendNavigationEvent({
+      sessionId: this.state.currentSessionId,
+      url: window.location.href,
+      route: this.state.currentPathname,
+      navigationType: "initial",
+      previousSessionId: null,
+      timing: {
+        navigationStart: this.state.navigationStartTime,
+        responseStart: null,
+        domContentLoaded: null,
+        load: null,
+        fcp: this.state.fcp,
+        lcp: this.state.lcp,
+      },
+    });
+  }
+
   sendInitialNavigationEvent(navEntry: PerformanceNavigationTiming): void {
     this.sendNavigationEvent({
       sessionId: this.getCurrentSessionId(),
@@ -210,6 +251,8 @@ class SessionManager {
         responseStart: navEntry.responseStart,
         domContentLoaded: navEntry.domContentLoadedEventEnd,
         load: navEntry.loadEventEnd,
+        fcp: this.state.fcp,
+        lcp: this.state.lcp,
       },
     });
   }
@@ -330,6 +373,16 @@ export function register() {
 
   navigationObserver.observe({ type: "navigation", buffered: true });
 
+  const paintObserver = new PerformanceObserver((list) => {
+    for (const entry of list.getEntries()) {
+      if (entry.name === "first-contentful-paint") {
+        sessionManager.setFcp(entry.startTime);
+      }
+    }
+  });
+
+  paintObserver.observe({ type: "paint", buffered: true });
+
   const performanceObserver = new PerformanceObserver((list) => {
     for (const entry of list.getEntries()) {
       const typedEntry = entry as PerformanceEntry & {
@@ -361,6 +414,8 @@ export function register() {
           "longtask.start_time": typedEntry.startTime.toFixed(2),
         });
       } else if (typedEntry.entryType === "largest-contentful-paint") {
+        const lcpTime = typedEntry.renderTime ?? typedEntry.loadTime ?? typedEntry.startTime;
+        sessionManager.setLcp(lcpTime);
         lcpValue.record(typedEntry.duration, {
           ...commonAttributes,
           "lcp.render_time": typedEntry.renderTime?.toFixed(2) || "N/A",

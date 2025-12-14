@@ -71,6 +71,9 @@ export interface PageTiming {
   readonly responseStart: number | undefined
   readonly domContentLoaded: number | undefined
   readonly load: number | undefined
+  readonly fcp: number | undefined
+  readonly lcp: number | undefined
+  readonly spaLcp: number | undefined
 }
 
 export interface SessionStats {
@@ -108,6 +111,8 @@ export interface NavigationEvent {
     readonly responseStart: number | undefined
     readonly domContentLoaded: number | undefined
     readonly load: number | undefined
+    readonly fcp: number | undefined
+    readonly lcp: number | undefined
   }
 }
 

@@ -1,14 +1,14 @@
+import type { RawSpan } from "./span-processing"
 import type {
-  Resource,
-  ResourceType,
+  NavigationEvent,
+  NavigationType,
   PageSession,
   PageTiming,
+  Resource,
+  ResourceType,
   SessionStats,
-  NavigationType,
-  NavigationEvent,
   SpanOrigin,
 } from "./types"
-import type { RawSpan } from "./span-processing"
 
 const NOISE_PATTERNS = [
   "__nextjs_original-stack-frame",
@@ -215,11 +215,27 @@ const computeStats = (resources: ReadonlyArray<Resource>): SessionStats => {
   }
 }
 
+const computeSpaLcp = (
+  resources: ReadonlyArray<Resource>,
+  navigationStart: number
+): number | undefined => {
+  const rscResources = resources.filter(
+    (r) => r.type === "rsc" || r.name.includes("_rsc") || r.url.includes("_rsc")
+  )
+
+  if (rscResources.length === 0) return undefined
+
+  const lastRscEnd = Math.max(...rscResources.map((r) => r.endTime))
+  return lastRscEnd - navigationStart
+}
+
 const computeTiming = (
   resources: ReadonlyArray<Resource>,
-  navigationEvent?: NavigationEvent
+  navigationEvent?: NavigationEvent,
+  navigationType?: "initial" | "navigation" | "back-forward"
 ): PageTiming => {
   const serverResources = resources.filter((r) => r.origin === "server")
+  const clientResources = resources.filter((r) => r.origin === "client")
 
   const serverStart = serverResources.length > 0 ? Math.min(...serverResources.map((r) => r.startTime)) : undefined
   const serverEnd = serverResources.length > 0 ? Math.max(...serverResources.map((r) => r.endTime)) : undefined
@@ -227,15 +243,42 @@ const computeTiming = (
   const minResourceStart = resources.length > 0 ? Math.min(...resources.map((r) => r.startTime)) : undefined
   const navigationStart = minResourceStart ?? serverStart ?? 0
 
-  const responseStart = navigationEvent?.timing.responseStart !== undefined
-    ? navigationStart + navigationEvent.timing.responseStart
-    : undefined
-  const domContentLoaded = navigationEvent?.timing.domContentLoaded !== undefined
-    ? navigationStart + navigationEvent.timing.domContentLoaded
-    : undefined
-  const load = navigationEvent?.timing.load !== undefined
-    ? navigationStart + navigationEvent.timing.load
-    : undefined
+  const navTiming = navigationEvent?.timing
+  const responseStartRelative = navTiming?.responseStart
+
+  let responseStart: number | undefined
+  let domContentLoaded: number | undefined
+  let load: number | undefined
+  let fcp: number | undefined
+  let lcp: number | undefined
+
+  if (serverEnd !== undefined && responseStartRelative !== undefined && responseStartRelative > 0) {
+    const firstClientStart = clientResources.length > 0
+      ? Math.min(...clientResources.map((r) => r.startTime))
+      : undefined
+
+    const browserAnchor = firstClientStart ?? serverEnd
+
+    const browserTimelineStart = responseStartRelative
+
+    responseStart = browserAnchor
+
+    if (navTiming?.domContentLoaded !== undefined) {
+      domContentLoaded = browserAnchor + (navTiming.domContentLoaded - browserTimelineStart)
+    }
+    if (navTiming?.load !== undefined) {
+      load = browserAnchor + (navTiming.load - browserTimelineStart)
+    }
+    if (navTiming?.fcp !== undefined) {
+      fcp = browserAnchor + (navTiming.fcp - browserTimelineStart)
+    }
+    if (navTiming?.lcp !== undefined) {
+      lcp = browserAnchor + (navTiming.lcp - browserTimelineStart)
+    }
+  }
+
+  const isSpNavigation = navigationType === "navigation" || navigationType === "back-forward"
+  const spaLcp = isSpNavigation ? computeSpaLcp(resources, navigationStart) : undefined
 
   return {
     navigationStart,
@@ -244,6 +287,9 @@ const computeTiming = (
     responseStart,
     domContentLoaded,
     load,
+    fcp,
+    lcp,
+    spaLcp,
   }
 }
 
@@ -357,14 +403,15 @@ export const buildPageSession = (
   const rootResources = buildResourceTree(resources)
   const flatResources = flattenResourceTree(rootResources)
 
-  const timing = computeTiming(flatResources, navigationEvent)
+  const navigationType = navigationEvent?.navigationType ?? determineNavigationType(sortedSpans)
+  const timing = computeTiming(flatResources, navigationEvent, navigationType)
   const stats = computeStats(flatResources)
 
   return {
     id: sessionId,
     url: navigationEvent?.url ?? extractSessionUrl(sortedSpans),
     route: navigationEvent?.route ?? extractRoute(sortedSpans),
-    navigationType: navigationEvent?.navigationType ?? determineNavigationType(sortedSpans),
+    navigationType,
     previousSessionId: navigationEvent?.previousSessionId,
     timing,
     resources: flatResources,
