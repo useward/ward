@@ -61,8 +61,8 @@ export const formatDuration = (ms: number): string => {
   return `${(ms / 1000).toFixed(2)}s`
 }
 
-export const formatSessionDuration = (startTime: number): string => {
-  const seconds = Math.floor((Date.now() - startTime) / 1000)
+export const formatElapsedTime = (startTime: number, now: number): string => {
+  const seconds = Math.floor((now - startTime) / 1000)
   const mins = Math.floor(seconds / 60)
   const secs = seconds % 60
   return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`

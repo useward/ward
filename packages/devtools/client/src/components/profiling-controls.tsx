@@ -1,11 +1,20 @@
 import { Circle, Play, Square, Trash2, Wifi, WifiOff } from "lucide-react"
+import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { useProfilingStore } from "@/lib/profiling-store"
 import { cn } from "@/lib/utils"
-import { formatSessionDuration } from "@/lib/view-models"
+import { formatElapsedTime } from "@/lib/view-models"
 
 export function ProfilingControls() {
   const { status, sessions, isConnected, startProfiling, stopProfiling, clearSessions, sessionStartTime } = useProfilingStore()
+  const [now, setNow] = useState(Date.now)
+
+  useEffect(() => {
+    if (status !== "recording" || !sessionStartTime) return
+    setNow(Date.now())
+    const interval = setInterval(() => setNow(Date.now()), 1000)
+    return () => clearInterval(interval)
+  }, [status, sessionStartTime])
 
   const totalResources = sessions.reduce((sum: number, s) => sum + s.stats.totalResources, 0)
   const errorCount = sessions.reduce((sum: number, s) => sum + s.stats.errorCount, 0)
@@ -43,7 +52,7 @@ export function ProfilingControls() {
       </div>
 
       {sessionStartTime && status === "recording" && (
-        <div className="text-sm text-muted-foreground font-mono">{formatSessionDuration(sessionStartTime)}</div>
+        <div className="text-sm text-muted-foreground font-mono">{formatElapsedTime(sessionStartTime, now)}</div>
       )}
 
       {status === "recording" && (
