@@ -396,7 +396,7 @@ const ResourceRow = memo(function ResourceRow({
         />
       </div>
 
-      <span className="text-[10px] font-mono text-muted-foreground min-w-[50px] text-right flex-shrink-0">
+      <span className="text-[10px] font-mono text-muted-foreground min-w-12.5 text-right shrink-0">
         {formatDuration(resource.duration)}
       </span>
     </div>
