@@ -36,7 +36,8 @@ function App() {
               </span>
             )}
           </TabsTrigger>
-          <TabsTrigger
+          {/* TODO: to be implemented */}
+          {/* <TabsTrigger
             value="renders"
             className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-6 py-3"
             disabled
@@ -56,7 +57,7 @@ function App() {
             disabled
           >
             Web Vitals
-          </TabsTrigger>
+          </TabsTrigger> */}
         </TabsList>
 
         <TabsContent value="sessions" className="flex-1 m-0">
