@@ -42,8 +42,15 @@ type SortField = "time" | "duration" | "resources";
 type SortOrder = "asc" | "desc";
 
 export function SessionsPanel() {
-  const { selectedSessionId, selectSession, filters, setFilters, zoomPan, setZoom, resetZoomPan } =
-    useProfilingStore();
+  const {
+    selectedSessionId,
+    selectSession,
+    filters,
+    setFilters,
+    zoomPan,
+    setZoom,
+    resetZoomPan,
+  } = useProfilingStore();
   const sessions = useProfilingStore(filteredSessionsSelector);
 
   const [searchQuery, setSearchQuery] = useState("");

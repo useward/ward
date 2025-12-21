@@ -1,32 +1,21 @@
 import {
-  buildPageSession,
+  createEmptySessionState,
+  enforceSessionLimit,
+  ingestNavigationEvent,
+  ingestSpan,
   type NavigationEvent,
   type PageSession,
-  type RawSpan,
+  processSessions,
   type Resource,
+  type SessionState,
   sortSessionsByTime,
 } from "@nextdoctor/domain";
 import { isValidSessionId } from "@nextdoctor/shared";
 import type { McpConfig } from "../config";
 import { SSEClient, type TelemetryEvent } from "./sse-client";
 
-interface SessionStoreState {
-  spans: Map<string, RawSpan>;
-  sessionSpans: Map<string, Set<string>>;
-  orphanSpans: Set<string>;
-  sessions: Map<string, PageSession>;
-  navigationEvents: Map<string, NavigationEvent>;
-}
-
 export class SessionStore {
-  private state: SessionStoreState = {
-    spans: new Map(),
-    sessionSpans: new Map(),
-    orphanSpans: new Set(),
-    sessions: new Map(),
-    navigationEvents: new Map(),
-  };
-
+  private state: SessionState = createEmptySessionState();
   private sseClient: SSEClient;
   private connected = false;
   private updateTimer: NodeJS.Timeout | null = null;
@@ -70,60 +59,14 @@ export class SessionStore {
 
   private handleTelemetry(event: TelemetryEvent): void {
     for (const span of event.spans) {
-      this.ingestSpan(span);
+      ingestSpan(this.state, span);
     }
     this.scheduleUpdate();
   }
 
   private handleNavigation(event: NavigationEvent): void {
-    this.state.navigationEvents.set(event.sessionId, event);
+    ingestNavigationEvent(this.state, event);
     this.scheduleUpdate();
-  }
-
-  private findSessionIdFromParent(span: RawSpan): string | undefined {
-    if (span.sessionId) return span.sessionId;
-
-    if (span.parentId) {
-      const parentSpan = this.state.spans.get(span.parentId);
-      if (parentSpan) {
-        return this.findSessionIdFromParent(parentSpan);
-      }
-    }
-
-    return undefined;
-  }
-
-  private assignSpanToSession(spanId: string): boolean {
-    const span = this.state.spans.get(spanId);
-    if (!span) return false;
-
-    const sessionId = this.findSessionIdFromParent(span);
-    if (!sessionId) return false;
-
-    if (!this.state.sessionSpans.has(sessionId)) {
-      this.state.sessionSpans.set(sessionId, new Set());
-    }
-    this.state.sessionSpans.get(sessionId)!.add(spanId);
-    this.state.orphanSpans.delete(spanId);
-    return true;
-  }
-
-  private tryAssignOrphans(): void {
-    const orphansToRetry = [...this.state.orphanSpans];
-    for (const spanId of orphansToRetry) {
-      this.assignSpanToSession(spanId);
-    }
-  }
-
-  private ingestSpan(span: RawSpan): void {
-    this.state.spans.set(span.id, span);
-
-    const assigned = this.assignSpanToSession(span.id);
-    if (!assigned) {
-      this.state.orphanSpans.add(span.id);
-    }
-
-    this.tryAssignOrphans();
   }
 
   private scheduleUpdate(): void {
@@ -131,80 +74,14 @@ export class SessionStore {
       clearTimeout(this.updateTimer);
     }
     this.updateTimer = setTimeout(
-      () => this.processSessions(),
+      () => this.processAndEnforceLimit(),
       this.debounceMs,
     );
   }
 
-  private processSessions(): void {
-    for (const [sessionId, spanIds] of this.state.sessionSpans) {
-      if (!isValidSessionId(sessionId)) continue;
-
-      const sessionSpanList = [...spanIds]
-        .map((id) => this.state.spans.get(id))
-        .filter((s): s is RawSpan => s !== undefined);
-
-      if (sessionSpanList.length === 0) continue;
-
-      const navigationEvent = this.state.navigationEvents.get(sessionId);
-      const session = buildPageSession(
-        sessionId,
-        sessionSpanList,
-        navigationEvent,
-      );
-      if (session) {
-        this.state.sessions.set(session.id, session);
-      }
-    }
-
-    for (const [sessionId, navEvent] of this.state.navigationEvents) {
-      if (
-        !this.state.sessions.has(sessionId) &&
-        !this.state.sessionSpans.has(sessionId)
-      ) {
-        const emptySession: PageSession = {
-          id: sessionId,
-          projectId: navEvent.projectId,
-          url: navEvent.url,
-          route: navEvent.route,
-          navigationType: navEvent.navigationType,
-          previousSessionId: navEvent.previousSessionId,
-          timing: {
-            navigationStart: navEvent.timing.navigationStart,
-            serverStart: undefined,
-            serverEnd: undefined,
-            responseStart: navEvent.timing.responseStart,
-            domContentLoaded: navEvent.timing.domContentLoaded,
-            load: navEvent.timing.load,
-            fcp: navEvent.timing.fcp,
-            lcp: navEvent.timing.lcp,
-            spaLcp: undefined,
-          },
-          resources: [],
-          rootResources: [],
-          stats: {
-            totalResources: 0,
-            serverResources: 0,
-            clientResources: 0,
-            totalDuration: 0,
-            errorCount: 0,
-            cachedCount: 0,
-            slowestResource: undefined,
-          },
-        };
-        this.state.sessions.set(sessionId, emptySession);
-      }
-    }
-
-    const sessions = this.getSessions();
-    if (sessions.length > this.maxSessions) {
-      const toRemove = sessions.slice(this.maxSessions);
-      for (const session of toRemove) {
-        this.state.sessions.delete(session.id);
-        this.state.sessionSpans.delete(session.id);
-        this.state.navigationEvents.delete(session.id);
-      }
-    }
+  private processAndEnforceLimit(): void {
+    processSessions(this.state, isValidSessionId);
+    enforceSessionLimit(this.state, this.maxSessions);
   }
 
   getSessions(): ReadonlyArray<PageSession> {
@@ -263,12 +140,6 @@ export class SessionStore {
   }
 
   clear(): void {
-    this.state = {
-      spans: new Map(),
-      sessionSpans: new Map(),
-      orphanSpans: new Set(),
-      sessions: new Map(),
-      navigationEvents: new Map(),
-    };
+    this.state = createEmptySessionState();
   }
 }

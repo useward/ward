@@ -16,6 +16,19 @@ export {
   sortSessionsByTime,
 } from "./session-processing";
 export {
+  assignSpanToSession,
+  clearSessionState,
+  createEmptySession,
+  createEmptySessionState,
+  enforceSessionLimit,
+  findSessionIdFromParent,
+  ingestNavigationEvent,
+  ingestSpan,
+  processSessions,
+  type SessionState,
+  tryAssignOrphans,
+} from "./session-state";
+export {
   buildSpanTree,
   convertOTLPSpan,
   extractSpansFromPayload,
