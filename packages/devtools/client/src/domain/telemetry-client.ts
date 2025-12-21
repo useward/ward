@@ -1,14 +1,18 @@
+import {
+  extractSpansFromPayload,
+  type NavigationEvent,
+  type OTLPExportTraceServiceRequest,
+  parseNavigationEvent,
+  type RawSpan,
+  type SpanOrigin,
+} from "@nextdoctor/domain"
 import * as Context from "effect/Context"
 import * as Effect from "effect/Effect"
 import * as Layer from "effect/Layer"
 import * as Option from "effect/Option"
 import * as Queue from "effect/Queue"
-import * as Stream from "effect/Stream"
 import type { Scope } from "effect/Scope"
-import type { OTLPExportTraceServiceRequest } from "./otel-types"
-import { extractSpansFromPayload, type RawSpan } from "./span-processing"
-import { parseNavigationEvent } from "./telemetry-schemas"
-import type { SpanOrigin, NavigationEvent } from "./types"
+import * as Stream from "effect/Stream"
 
 export class TelemetryClientConfig extends Context.Tag("TelemetryClientConfig")<
   TelemetryClientConfig,

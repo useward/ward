@@ -1,0 +1,26 @@
+{
+  "name": "@nextdoctor/domain",
+  "private": true,
+  "version": "0.0.1",
+  "type": "module",
+  "exports": {
+    ".": {
+      "import": "./dist/index.mjs",
+      "default": "./dist/index.mjs",
+      "types": "./dist/index.d.mts"
+    }
+  },
+  "scripts": {
+    "build": "tsdown src/index.ts --format esm --dts --clean",
+    "dev": "tsdown src/index.ts --format esm --dts --watch"
+  },
+  "dependencies": {
+    "@nextdoctor/shared": "workspace:*",
+    "effect": "^3.19.8"
+  },
+  "devDependencies": {
+    "@types/node": "^24.10.1",
+    "tsdown": "^0.16.7",
+    "typescript": "~5.9.3"
+  }
+}

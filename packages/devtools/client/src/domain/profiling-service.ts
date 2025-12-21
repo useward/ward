@@ -7,10 +7,14 @@ import * as PubSub from "effect/PubSub"
 import * as Ref from "effect/Ref"
 import * as Stream from "effect/Stream"
 import { isValidSessionId } from "@nextdoctor/shared"
-import { buildPageSession, sortSessionsByTime } from "./session-processing"
-import type { RawSpan } from "./span-processing"
+import {
+  buildPageSession,
+  sortSessionsByTime,
+  type RawSpan,
+  type PageSession,
+  type NavigationEvent,
+} from "@nextdoctor/domain"
 import { TelemetryClientService, type TelemetryError, type TelemetryEvent } from "./telemetry-client"
-import type { PageSession, NavigationEvent } from "./types"
 
 export class ProfilingServiceConfig extends Context.Tag("ProfilingServiceConfig")<
   ProfilingServiceConfig,

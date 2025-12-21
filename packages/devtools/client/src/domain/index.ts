@@ -1,9 +1,6 @@
-export * from "./types"
-export { StatusCode } from "./otel-types"
-export type { AnyValue, KeyValue, OTLPExportTraceServiceRequest, OTLPSpan } from "./otel-types"
-export * from "./span-processing"
-export * from "./session-processing"
-export * from "./telemetry-client"
-export * from "./telemetry-schemas"
+export * from "@nextdoctor/domain"
+
 export * from "./profiling-service"
 export * from "./runtime"
+export * from "./telemetry-client"
+

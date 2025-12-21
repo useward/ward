@@ -168,13 +168,14 @@ const computeStats = (resources: ReadonlyArray<Resource>): SessionStats => {
     }
   }
 
+  const firstResource = resources[0]!
   let serverResources = 0
   let clientResources = 0
   let errorCount = 0
   let cachedCount = 0
-  let minStartTime = resources[0].startTime
-  let maxEndTime = resources[0].endTime
-  let slowestResource: { name: string; duration: number } | undefined = undefined
+  let minStartTime = firstResource.startTime
+  let maxEndTime = firstResource.endTime
+  let slowestResource: { name: string; duration: number } | undefined
 
   for (const resource of resources) {
     if (resource.origin === "server") {
@@ -337,7 +338,7 @@ const extractRoute = (spans: ReadonlyArray<RawSpan>): string => {
   if (firstSpan) {
     const name = firstSpan.name
     if (name.includes("/") && !name.startsWith("HTTP") && !name.startsWith("fetch")) {
-      return name.split("?")[0]
+      return name.split("?")[0] ?? name
     }
   }
 

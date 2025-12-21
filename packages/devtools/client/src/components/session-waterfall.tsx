@@ -1,17 +1,17 @@
-import { useRef, useMemo, useCallback, memo } from "react"
-import { Server, Monitor } from "lucide-react"
+import { Monitor, Server } from "lucide-react"
+import { memo, useCallback, useMemo, useRef } from "react"
+import type { PageSession, Resource } from "@/domain"
+import { useProfilingStore } from "@/lib/profiling-store"
 import { cn } from "@/lib/utils"
 import {
-  RESOURCE_TYPE_CONFIG,
-  getResourceConfig,
-  getResourceDisplayName,
   formatDuration,
   formatTimeMarker,
+  getResourceConfig,
+  getResourceDisplayName,
   getTimelinePosition,
   getTimelineWidth,
+  RESOURCE_TYPE_CONFIG,
 } from "@/lib/view-models"
-import { useProfilingStore } from "@/lib/profiling-store"
-import type { PageSession, Resource } from "@/domain"
 
 interface SessionWaterfallProps {
   session: PageSession
