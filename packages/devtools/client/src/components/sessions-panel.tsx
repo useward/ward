@@ -18,6 +18,7 @@ import { useMemo, useState } from "react";
 import { useShallow } from "zustand/shallow";
 import { ResourceFilters } from "@/components/resource-filters";
 import { ResourceTree } from "@/components/resource-tree";
+import { SessionIssues } from "@/components/session-issues";
 import { SessionWaterfall } from "@/components/session-waterfall";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -27,7 +28,7 @@ import type {
   Resource,
   ResourceFilterState,
 } from "@/domain";
-import { filterResources } from "@/domain";
+import { ALL_DETECTORS, filterResources, runDetectors } from "@/domain";
 import {
   filteredSessionsSelector,
   useProfilingStore,
@@ -250,6 +251,14 @@ function SessionListItem({
   const isInitial = session.navigationType === "initial";
   const dataFetchCount = countDataFetches(session);
 
+  const issueCount = useMemo(() => {
+    const issues = runDetectors(session, ALL_DETECTORS);
+    return {
+      total: issues.length,
+      critical: issues.filter((i) => i.match.severity === "critical").length,
+    };
+  }, [session]);
+
   return (
     <button
       onClick={onClick}
@@ -300,6 +309,17 @@ function SessionListItem({
             {session.stats.errorCount} err
           </span>
         )}
+        {issueCount.total > 0 && (
+          <span
+            className={cn(
+              "flex items-center gap-0.5 font-medium",
+              issueCount.critical > 0 ? "text-red-400" : "text-amber-400",
+            )}
+          >
+            <AlertTriangle className="size-2.5" />
+            {issueCount.total}
+          </span>
+        )}
       </div>
     </button>
   );
@@ -341,8 +361,6 @@ function SessionDetailPanel({
     );
   }
 
-  const dataFetchCount = countDataFetches(session);
-
   return (
     <div className="flex-1 flex flex-col min-w-0">
       <SessionHeader
@@ -351,17 +369,7 @@ function SessionDetailPanel({
         onToggleDetails={onToggleDetails}
       />
 
-      {dataFetchCount > 0 && (
-        <div className="px-4 py-2 bg-amber-500/10 border-b border-amber-500/30">
-          <div className="flex items-center gap-2 text-xs text-amber-300">
-            <Zap className="size-4" />
-            <span className="font-medium">
-              {dataFetchCount} data {dataFetchCount === 1 ? "fetch" : "fetches"}{" "}
-              for this page
-            </span>
-          </div>
-        </div>
-      )}
+      <SessionIssues session={session} />
 
       <ResourceFilters filters={filters} onFiltersChange={onFiltersChange} />
 

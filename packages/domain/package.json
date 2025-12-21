@@ -12,7 +12,8 @@
   },
   "scripts": {
     "build": "tsdown src/index.ts --format esm --dts --clean",
-    "dev": "tsdown src/index.ts --format esm --dts --watch"
+    "dev": "tsdown src/index.ts --format esm --dts --watch",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@ward/shared": "workspace:*",

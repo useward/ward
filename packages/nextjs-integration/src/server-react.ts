@@ -5,13 +5,16 @@ import { cache as reactCache } from "react";
 const INSTRUMENTATION_NAME = "react-cache-instrumentation";
 const INSTRUMENTATION_VERSION = "1.0.0";
 
-export function cache<CachedFunction extends (...args: never[]) => unknown>(
+export function cache<CachedFunction extends (...args: unknown[]) => unknown>(
   fn: CachedFunction,
 ): CachedFunction {
   const tracer = trace.getTracer(INSTRUMENTATION_NAME, INSTRUMENTATION_VERSION);
   const cachedFn = reactCache(fn);
 
-  const instrumentedFn = function (this: unknown, ...args: unknown[]): unknown {
+  const instrumentedFn = function (
+    this: unknown,
+    ...args: Parameters<CachedFunction>
+  ): ReturnType<CachedFunction> {
     const functionName = fn.name || "anonymous";
     const span = tracer.startSpan(
       "react.cache",
@@ -27,7 +30,7 @@ export function cache<CachedFunction extends (...args: never[]) => unknown>(
 
     const ctx = trace.setSpan(context.active(), span);
 
-    return context.with(ctx, () => {
+    return context.with(ctx, (): ReturnType<CachedFunction> => {
       const start = performance.now();
 
       try {
@@ -36,7 +39,8 @@ export function cache<CachedFunction extends (...args: never[]) => unknown>(
         if (
           result &&
           typeof result === "object" &&
-          typeof result.then === "function"
+          "then" in result &&
+          typeof (result as { then?: unknown }).then === "function"
         ) {
           return (result as Promise<unknown>)
             .then((value: unknown) => {
@@ -50,7 +54,7 @@ export function cache<CachedFunction extends (...args: never[]) => unknown>(
               recordError(span, error);
               span.end();
               throw error;
-            });
+            }) as ReturnType<CachedFunction>;
         }
 
         const duration = performance.now() - start;
@@ -58,7 +62,7 @@ export function cache<CachedFunction extends (...args: never[]) => unknown>(
         span.setAttribute("react.cache.async", false);
         span.end();
 
-        return result;
+        return result as ReturnType<CachedFunction>;
       } catch (error) {
         recordError(span, error);
         span.end();

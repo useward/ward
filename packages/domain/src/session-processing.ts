@@ -194,7 +194,7 @@ const computeStats = (resources: ReadonlyArray<Resource>): SessionStats => {
     };
   }
 
-  const firstResource = resources[0];
+  const firstResource = resources[0] as Resource;
   let serverResources = 0;
   let clientResources = 0;
   let errorCount = 0;
