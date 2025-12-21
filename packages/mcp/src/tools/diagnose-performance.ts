@@ -9,6 +9,7 @@ export interface DiagnosePerformanceArgs {
   session_id?: string;
   route?: string;
   threshold_ms?: number;
+  project_id?: string;
 }
 
 interface PerformanceIssue {
@@ -132,13 +133,18 @@ export const diagnosePerformance = (
       return `Session '${args.session_id}' not found. Use get_sessions to see available sessions.`;
     }
   } else if (args.route) {
-    const sessions = store.getSessionsByRoute(args.route);
+    let sessions = store.getSessionsByRoute(args.route);
+    if (args.project_id) {
+      sessions = sessions.filter((s) => s.projectId === args.project_id);
+    }
     if (sessions.length === 0) {
       return `No sessions found for route '${args.route}'.`;
     }
     session = sessions[0];
   } else {
-    const sessions = store.getSessions();
+    const sessions = args.project_id
+      ? store.getSessionsByProject(args.project_id)
+      : store.getSessions();
     if (sessions.length === 0) {
       return "No sessions available. Navigate to pages in your Next.js app to generate telemetry.";
     }

@@ -22,6 +22,9 @@ const NavigationTimingSchema = Schema.Struct({
 
 export const NavigationEventSchema = Schema.Struct({
   sessionId: Schema.String,
+  projectId: Schema.optionalWith(Schema.String, {
+    default: () => "unknown-project",
+  }),
   url: Schema.String,
   route: Schema.String,
   navigationType: NavigationTypeSchema,
@@ -31,6 +34,7 @@ export const NavigationEventSchema = Schema.Struct({
 
 export interface ParsedNavigationEvent {
   sessionId: string;
+  projectId: string;
   url: string;
   route: string;
   navigationType: NavigationType;
@@ -55,6 +59,7 @@ export const parseNavigationEvent = (
   const parsed = result.value;
   return {
     sessionId: parsed.sessionId,
+    projectId: parsed.projectId,
     url: parsed.url,
     route: parsed.route,
     navigationType: parsed.navigationType,

@@ -40,8 +40,9 @@ type SortOrder = "asc" | "desc";
 
 export function SessionsPanel() {
   const {
-    sessions,
+    sessions: allSessions,
     selectedSessionId,
+    selectedProjectId,
     selectSession,
     filters,
     setFilters,
@@ -49,6 +50,10 @@ export function SessionsPanel() {
     setZoom,
     resetZoomPan,
   } = useProfilingStore();
+
+  const sessions = selectedProjectId
+    ? allSessions.filter((s) => s.projectId === selectedProjectId)
+    : allSessions;
 
   const [searchQuery, setSearchQuery] = useState("");
   const [filterType, setFilterType] = useState<NavigationType | "ALL">("ALL");

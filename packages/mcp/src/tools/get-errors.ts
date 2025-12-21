@@ -3,6 +3,7 @@ import type { SessionStore } from "../state/session-store";
 export interface GetErrorsArgs {
   session_id?: string;
   limit?: number;
+  project_id?: string;
 }
 
 const formatDuration = (ms: number): string => {
@@ -13,6 +14,10 @@ const formatDuration = (ms: number): string => {
 export const getErrors = (store: SessionStore, args: GetErrorsArgs): string => {
   const limit = args.limit ?? 20;
   let errors = store.getErrors();
+
+  if (args.project_id) {
+    errors = errors.filter((e) => e.session.projectId === args.project_id);
+  }
 
   if (args.session_id) {
     errors = errors.filter((e) => e.session.id === args.session_id);

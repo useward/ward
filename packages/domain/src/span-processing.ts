@@ -10,11 +10,13 @@ import type { SpanCategory, SpanOrigin, SpanStatus, TraceSpan } from "./types";
 
 const ATTR_REQUEST_ID = "nextdoctor.request.id";
 const ATTR_SESSION_ID = "nextdoctor.session.id";
+const ATTR_PROJECT_ID = "nextdoctor.project.id";
 const ATTR_SPAN_CATEGORY = "nextdoctor.span.category";
 
 interface RawSpan extends TraceSpan {
   readonly requestId: string | undefined;
   readonly sessionId: string | undefined;
+  readonly projectId: string | undefined;
 }
 
 const extractAttributeValue = (
@@ -137,6 +139,7 @@ export const convertOTLPSpan = (
     normalizeCategory(customCategory) ?? inferCategory(span.name, attributes);
   const requestId = attributes[ATTR_REQUEST_ID] as string | undefined;
   const sessionId = attributes[ATTR_SESSION_ID] as string | undefined;
+  const projectId = attributes[ATTR_PROJECT_ID] as string | undefined;
 
   return {
     id: span.spanId,
@@ -153,6 +156,7 @@ export const convertOTLPSpan = (
     children: [],
     requestId,
     sessionId,
+    projectId,
   };
 };
 

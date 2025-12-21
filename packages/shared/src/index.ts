@@ -13,7 +13,9 @@ export const SERVER_METRICS_ENDPOINT = `http://localhost:${SERVER_PORT}${SERVER_
 export const NAVIGATION_EVENTS_ENDPOINT = `http://localhost:${SERVER_PORT}${NAVIGATION_EVENTS_ROUTE}`;
 
 export const SESSION_ID_HEADER = "x-nextdoctor-session-id";
+export const PROJECT_ID_HEADER = "x-nextdoctor-project-id";
 export const ATTR_SESSION_ID = "nextdoctor.session.id";
+export const ATTR_PROJECT_ID = "nextdoctor.project.id";
 
 export const CLIENT_SESSION_ID_PREFIX = "nav_";
 export const SERVER_SESSION_ID_PREFIX = "srv_";

@@ -1,4 +1,5 @@
 import {
+  ATTR_PROJECT_ID,
   ATTR_SESSION_ID,
   CLIENT_METRICS_ENDPOINT,
   CLIENT_SESSION_ID_PREFIX,
@@ -28,6 +29,7 @@ type NavigationType = "initial" | "navigation" | "back-forward";
 
 interface NavigationEventPayload {
   sessionId: string;
+  projectId: string;
   url: string;
   route: string;
   navigationType: NavigationType;
@@ -45,6 +47,7 @@ interface NavigationEventPayload {
 interface SessionState {
   currentSessionId: string | null;
   previousSessionId: string | null;
+  projectId: string;
   navigationStartTime: number;
   currentPathname: string;
   pendingNavigationSessionId: string | null;
@@ -61,6 +64,7 @@ class SessionManager {
     this.state = {
       currentSessionId: null,
       previousSessionId: null,
+      projectId: "unknown-project",
       navigationStartTime: 0,
       currentPathname:
         typeof window !== "undefined" ? window.location.pathname : "/",
@@ -81,6 +85,15 @@ class SessionManager {
     return meta?.getAttribute("content") ?? null;
   }
 
+  private readProjectId(): string {
+    const meta = document.querySelector('meta[name="nextdoctor-project-id"]');
+    return meta?.getAttribute("content") ?? "unknown-project";
+  }
+
+  getProjectId(): string {
+    return this.state.projectId;
+  }
+
   private sendNavigationEvent(event: NavigationEventPayload): void {
     fetch(NAVIGATION_EVENTS_ENDPOINT, {
       method: "POST",
@@ -97,6 +110,7 @@ class SessionManager {
   initialize(): void {
     const serverSessionId = this.readServerSessionId();
     this.state.currentSessionId = serverSessionId || this.generateSessionId();
+    this.state.projectId = this.readProjectId();
     this.state.navigationStartTime = performance.now();
     this.state.currentPathname = window.location.pathname;
   }
@@ -128,6 +142,7 @@ class SessionManager {
 
     this.sendNavigationEvent({
       sessionId: this.state.currentSessionId!,
+      projectId: this.state.projectId,
       url: window.location.href,
       route: newPathname,
       navigationType,
@@ -236,6 +251,7 @@ class SessionManager {
 
     this.sendNavigationEvent({
       sessionId: this.state.currentSessionId,
+      projectId: this.state.projectId,
       url: window.location.href,
       route: this.state.currentPathname,
       navigationType: "initial",
@@ -254,6 +270,7 @@ class SessionManager {
   sendInitialNavigationEvent(navEntry: PerformanceNavigationTiming): void {
     this.sendNavigationEvent({
       sessionId: this.getCurrentSessionId(),
+      projectId: this.state.projectId,
       url: window.location.href,
       route: window.location.pathname,
       navigationType: "initial",
@@ -297,6 +314,7 @@ export function register() {
         ? sessionManager.getSessionIdForUrl(String(urlAttr))
         : sessionManager.getCurrentSessionId();
       span.setAttribute(ATTR_SESSION_ID, sessionId);
+      span.setAttribute(ATTR_PROJECT_ID, sessionManager.getProjectId());
     },
     onEnd(): void {},
     shutdown(): Promise<void> {
@@ -349,6 +367,7 @@ export function register() {
             ATTR_SESSION_ID,
             sessionManager.getSessionIdForUrl(url),
           );
+          span.setAttribute(ATTR_PROJECT_ID, sessionManager.getProjectId());
         },
       }),
       new XMLHttpRequestInstrumentation({
@@ -358,6 +377,7 @@ export function register() {
             ATTR_SESSION_ID,
             sessionManager.getSessionIdForUrl(url),
           );
+          span.setAttribute(ATTR_PROJECT_ID, sessionManager.getProjectId());
         },
       }),
     ],
@@ -430,6 +450,7 @@ export function register() {
         "page.path": window.location.pathname,
         "entry.name": typedEntry.name,
         [ATTR_SESSION_ID]: sessionManager.getCurrentSessionId(),
+        [ATTR_PROJECT_ID]: sessionManager.getProjectId(),
       };
 
       if (

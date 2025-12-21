@@ -101,10 +101,15 @@ const extractInitiator = (span: RawSpan): string | undefined => {
   return span.attributes["nextdoctor.fetch.initiator"] as string | undefined;
 };
 
-const spanToResource = (span: RawSpan, sessionId: string): Resource => ({
+const spanToResource = (
+  span: RawSpan,
+  sessionId: string,
+  projectId: string,
+): Resource => ({
   id: span.id,
   parentId: span.parentId,
   sessionId,
+  projectId,
   type: inferResourceType(span),
   origin: span.origin,
   name: span.name,
@@ -445,6 +450,17 @@ const determineNavigationType = (
   return "initial";
 };
 
+const extractProjectId = (
+  spans: ReadonlyArray<RawSpan>,
+  navigationEvent?: NavigationEvent,
+): string => {
+  if (navigationEvent?.projectId) return navigationEvent.projectId;
+  for (const span of spans) {
+    if (span.projectId) return span.projectId;
+  }
+  return "unknown";
+};
+
 export const buildPageSession = (
   sessionId: string,
   spans: ReadonlyArray<RawSpan>,
@@ -454,7 +470,10 @@ export const buildPageSession = (
   if (validSpans.length === 0) return undefined;
 
   const sortedSpans = [...validSpans].sort((a, b) => a.startTime - b.startTime);
-  const resources = sortedSpans.map((span) => spanToResource(span, sessionId));
+  const projectId = extractProjectId(sortedSpans, navigationEvent);
+  const resources = sortedSpans.map((span) =>
+    spanToResource(span, sessionId, projectId),
+  );
   const rootResources = buildResourceTree(resources);
   const flatResources = flattenResourceTree(rootResources);
 
@@ -465,6 +484,7 @@ export const buildPageSession = (
 
   return {
     id: sessionId,
+    projectId,
     url: navigationEvent?.url ?? extractSessionUrl(sortedSpans),
     route: navigationEvent?.route ?? extractRoute(sortedSpans),
     navigationType,

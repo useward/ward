@@ -1,7 +1,7 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
-import type { McpConfig } from "./config";
+import { type McpConfig, resolveProjectId } from "./config";
 import { SessionStore } from "./state/session-store";
 import {
   diagnosePerformance,
@@ -9,15 +9,31 @@ import {
   getErrors,
   getSessionDetails,
   getSessions,
+  listProjects,
 } from "./tools";
 
 export const createServer = async (config: McpConfig) => {
   const store = new SessionStore(config);
 
+  const autoProjectId = resolveProjectId();
+
   const server = new McpServer({
     name: "nextdoctor",
     version: "0.0.1",
   });
+
+  server.registerTool(
+    "list_projects",
+    {
+      description:
+        "List all projects that have sent telemetry data. Use this to see which applications are being monitored.",
+      inputSchema: {},
+    },
+    async () => {
+      const result = listProjects(store, autoProjectId);
+      return { content: [{ type: "text", text: result }] };
+    },
+  );
 
   server.registerTool(
     "get_sessions",
@@ -33,10 +49,20 @@ export const createServer = async (config: McpConfig) => {
           .string()
           .optional()
           .describe("Filter sessions by route path (e.g., '/dashboard')"),
+        project_id: z
+          .string()
+          .optional()
+          .describe(
+            "Filter by project ID. If not specified, auto-detects from cwd or shows all projects.",
+          ),
       },
     },
     async (args) => {
-      const result = getSessions(store, args);
+      const effectiveProjectId = args.project_id ?? autoProjectId;
+      const result = getSessions(store, {
+        ...args,
+        project_id: effectiveProjectId,
+      });
       return { content: [{ type: "text", text: result }] };
     },
   );
@@ -82,10 +108,15 @@ export const createServer = async (config: McpConfig) => {
           .describe(
             "Consider resources slower than this threshold (default: 100ms)",
           ),
+        project_id: z.string().optional().describe("Filter by project ID"),
       },
     },
     async (args) => {
-      const result = diagnosePerformance(store, args);
+      const effectiveProjectId = args.project_id ?? autoProjectId;
+      const result = diagnosePerformance(store, {
+        ...args,
+        project_id: effectiveProjectId,
+      });
       return { content: [{ type: "text", text: result }] };
     },
   );
@@ -104,10 +135,15 @@ export const createServer = async (config: McpConfig) => {
           .number()
           .optional()
           .describe("Maximum errors to return (default: 20)"),
+        project_id: z.string().optional().describe("Filter by project ID"),
       },
     },
     async (args) => {
-      const result = getErrors(store, args);
+      const effectiveProjectId = args.project_id ?? autoProjectId;
+      const result = getErrors(store, {
+        ...args,
+        project_id: effectiveProjectId,
+      });
       return { content: [{ type: "text", text: result }] };
     },
   );
@@ -127,10 +163,15 @@ export const createServer = async (config: McpConfig) => {
           .optional()
           .describe("Filter by resource type (default: all)"),
         limit: z.number().optional().describe("Maximum results (default: 20)"),
+        project_id: z.string().optional().describe("Filter by project ID"),
       },
     },
     async (args) => {
-      const result = findSlowRequests(store, args);
+      const effectiveProjectId = args.project_id ?? autoProjectId;
+      const result = findSlowRequests(store, {
+        ...args,
+        project_id: effectiveProjectId,
+      });
       return { content: [{ type: "text", text: result }] };
     },
   );

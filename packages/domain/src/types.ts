@@ -55,6 +55,7 @@ export interface Resource {
   readonly id: string;
   readonly parentId: string | undefined;
   readonly sessionId: string;
+  readonly projectId: string;
   readonly type: ResourceType;
   readonly origin: SpanOrigin;
   readonly name: string;
@@ -97,6 +98,7 @@ export interface SessionStats {
 
 export interface PageSession {
   readonly id: string;
+  readonly projectId: string;
   readonly url: string;
   readonly route: string;
   readonly navigationType: NavigationType;
@@ -111,6 +113,7 @@ export type ProfilingStatus = "idle" | "recording" | "stopped";
 
 export interface NavigationEvent {
   readonly sessionId: string;
+  readonly projectId: string;
   readonly url: string;
   readonly route: string;
   readonly navigationType: NavigationType;

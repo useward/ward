@@ -164,6 +164,7 @@ export class SessionStore {
       ) {
         const emptySession: PageSession = {
           id: sessionId,
+          projectId: navEvent.projectId,
           url: navEvent.url,
           route: navEvent.route,
           navigationType: navEvent.navigationType,
@@ -218,6 +219,18 @@ export class SessionStore {
     return this.getSessions().filter(
       (s) => s.route === route || s.route.startsWith(route),
     );
+  }
+
+  getProjects(): ReadonlyArray<string> {
+    const projects = new Set<string>();
+    for (const session of this.state.sessions.values()) {
+      projects.add(session.projectId);
+    }
+    return [...projects].sort();
+  }
+
+  getSessionsByProject(projectId: string): ReadonlyArray<PageSession> {
+    return this.getSessions().filter((s) => s.projectId === projectId);
   }
 
   getErrors(): ReadonlyArray<{ session: PageSession; resource: Resource }> {

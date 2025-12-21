@@ -4,11 +4,13 @@ import react from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
 
 // https://vite.dev/config/
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
   root: __dirname,
   build: {
     outDir: path.resolve(__dirname, "../dist/ui"),
     emptyOutDir: true,
+    minify: mode !== "development",
+    sourcemap: mode === "development",
   },
   plugins: [
     react({
@@ -23,4 +25,4 @@ export default defineConfig({
       "@": path.resolve(__dirname, "./src"),
     },
   },
-});
+}));

@@ -5,6 +5,7 @@ export interface FindSlowRequestsArgs {
   threshold_ms?: number;
   type?: "fetch" | "database" | "api" | "all";
   limit?: number;
+  project_id?: string;
 }
 
 const formatDuration = (ms: number): string => {
@@ -40,6 +41,12 @@ export const findSlowRequests = (
   const limit = args.limit ?? 20;
 
   let slowResources = store.getSlowResources(thresholdMs);
+
+  if (args.project_id) {
+    slowResources = slowResources.filter(
+      ({ session }) => session.projectId === args.project_id,
+    );
+  }
 
   if (filterType !== "all") {
     slowResources = slowResources.filter(({ resource }) =>

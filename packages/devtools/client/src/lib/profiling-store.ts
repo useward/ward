@@ -18,6 +18,7 @@ interface ProfilingStoreState {
   sessions: ReadonlyArray<PageSession>;
   selectedSessionId: string | null;
   selectedResourceId: string | null;
+  selectedProjectId: string | null; // null means "All Projects"
   isConnected: boolean;
   sessionStartTime: number | null;
   error: string | null;
@@ -33,6 +34,7 @@ interface ProfilingStoreActions {
   clearSessions: () => void;
   selectSession: (id: string | null) => void;
   selectResource: (id: string | null) => void;
+  selectProject: (id: string | null) => void;
   setFilters: (filters: Partial<ResourceFilterState>) => void;
   setZoom: (zoom: number) => void;
   setPanOffset: (offset: number) => void;
@@ -40,6 +42,8 @@ interface ProfilingStoreActions {
   toggleResourceExpanded: (id: string) => void;
   expandAll: () => void;
   collapseAll: () => void;
+  getProjects: () => ReadonlyArray<string>;
+  getFilteredSessions: () => ReadonlyArray<PageSession>;
 }
 
 type ProfilingStore = ProfilingStoreState & ProfilingStoreActions;
@@ -63,6 +67,7 @@ const initialState: ProfilingStoreState = {
   sessions: [],
   selectedSessionId: null,
   selectedResourceId: null,
+  selectedProjectId: null,
   isConnected: false,
   sessionStartTime: null,
   error: null,
@@ -205,5 +210,28 @@ export const useProfilingStore = create<ProfilingStore>((set, get) => ({
 
   collapseAll: () => {
     set({ expandedResourceIds: new Set() });
+  },
+
+  selectProject: (id) => {
+    set({
+      selectedProjectId: id,
+      selectedSessionId: null,
+      selectedResourceId: null,
+    });
+  },
+
+  getProjects: () => {
+    const { sessions } = get();
+    const projects = new Set<string>();
+    for (const session of sessions) {
+      projects.add(session.projectId);
+    }
+    return [...projects].sort();
+  },
+
+  getFilteredSessions: () => {
+    const { sessions, selectedProjectId } = get();
+    if (!selectedProjectId) return sessions;
+    return sessions.filter((s) => s.projectId === selectedProjectId);
   },
 }));

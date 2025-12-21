@@ -12,3 +12,4 @@ export {
   getSessionDetails,
 } from "./get-session-details";
 export { type GetSessionsArgs, getSessions } from "./get-sessions";
+export { listProjects } from "./list-projects";

@@ -1,4 +1,8 @@
-import { ATTR_SESSION_ID, SERVER_TRACES_ENDPOINT } from "@nextdoctor/shared";
+import {
+  ATTR_PROJECT_ID,
+  ATTR_SESSION_ID,
+  SERVER_TRACES_ENDPOINT,
+} from "@nextdoctor/shared";
 import {
   createContextKey,
   DiagConsoleLogger,
@@ -17,6 +21,12 @@ import {
   ATTR_SERVICE_VERSION,
 } from "@opentelemetry/semantic-conventions";
 import { OTLPHttpJsonTraceExporter, registerOTel } from "@vercel/otel";
+import {
+  getProjectId,
+  type NextDoctorConfig,
+  resolveProjectId,
+  setProjectId,
+} from "./config.js";
 import {
   InstrumentationManager,
   NextJsServerInstrumentation,
@@ -54,11 +64,31 @@ class SessionIdSpanProcessor implements SpanProcessor {
   }
 }
 
-export async function register() {
-  const isDebug = !!process.env.NEXTDOCTOR_DEBUG;
+class ProjectIdSpanProcessor implements SpanProcessor {
+  onStart(span: Span): void {
+    span.setAttribute(ATTR_PROJECT_ID, getProjectId());
+  }
+
+  onEnd(_span: ReadableSpan): void {}
+
+  shutdown(): Promise<void> {
+    return Promise.resolve();
+  }
+
+  forceFlush(): Promise<void> {
+    return Promise.resolve();
+  }
+}
+
+export async function register(config?: NextDoctorConfig) {
+  const isDebug = config?.debug ?? !!process.env.NEXTDOCTOR_DEBUG;
+
+  const projectId = resolveProjectId(config);
+  setProjectId(projectId);
 
   if (isDebug) {
     diag.setLogger(new DiagConsoleLogger(), DiagLogLevel.INFO);
+    console.log(`[nextdoctor] Initialized with projectId: ${projectId}`);
   }
 
   const traceExporter = new OTLPHttpJsonTraceExporter({
@@ -66,6 +96,7 @@ export async function register() {
   });
 
   const sessionProcessor = new SessionIdSpanProcessor();
+  const projectProcessor = new ProjectIdSpanProcessor();
   const batchProcessor = new BatchSpanProcessor(traceExporter);
 
   registerOTel({
@@ -73,12 +104,15 @@ export async function register() {
     attributes: {
       [ATTR_SERVICE_NAME]: SERVICE_NAME,
       [ATTR_SERVICE_VERSION]: SERVICE_VERSION,
+      [ATTR_PROJECT_ID]: projectId,
       "app.env": process.env.NODE_ENV || "development",
     },
-    spanProcessors: [sessionProcessor, batchProcessor],
+    spanProcessors: [sessionProcessor, projectProcessor, batchProcessor],
   });
 
   const manager = new InstrumentationManager();
   manager.register(new NextJsServerInstrumentation({ debug: isDebug }));
   manager.enable();
 }
+
+export type { NextDoctorConfig };

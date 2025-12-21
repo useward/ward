@@ -8,31 +8,46 @@ import { useProfilingStore } from "@/lib/profiling-store";
 
 function App() {
   const {
-    sessions,
     status,
+    sessions,
     isConnected,
     selectedSessionId,
     selectedResourceId,
+    selectedProjectId,
+    selectProject,
   } = useProfilingStore();
+
+  const projects = [...new Set(sessions.map((s) => s.projectId))].sort();
+  const filteredSessions =
+    status === "idle"
+      ? []
+      : selectedProjectId
+        ? sessions.filter((s) => s.projectId === selectedProjectId)
+        : sessions;
 
   useEffect(() => {
     document.documentElement.classList.add("dark");
   }, []);
 
-  const displaySessions = status === "idle" ? [] : sessions;
-  const totalResources = displaySessions.reduce(
+  const totalResources = filteredSessions.reduce(
     (sum, s) => sum + s.stats.totalResources,
     0,
   );
   const selectedSession =
-    displaySessions.find((s) => s.id === selectedSessionId) ?? null;
+    filteredSessions.find((s) => s.id === selectedSessionId) ?? null;
+
+  const currentProjectName =
+    selectedProjectId ?? (projects.length === 1 ? projects[0] : "All Projects");
 
   return (
     <div className="h-screen flex flex-col bg-background text-foreground">
       <DevtoolHeader
-        projectName="my-nextjs-app"
+        projectName={currentProjectName ?? "No Projects"}
         projectUrl="localhost:3000"
         isConnected={isConnected}
+        projects={projects}
+        selectedProjectId={selectedProjectId}
+        onSelectProject={selectProject}
       />
 
       <ProfilingControls />
@@ -44,9 +59,9 @@ function App() {
             className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-6 py-3"
           >
             Page Sessions
-            {displaySessions.length > 0 && (
+            {filteredSessions.length > 0 && (
               <span className="ml-2 text-xs text-muted-foreground">
-                ({displaySessions.length} sessions, {totalResources} resources)
+                ({filteredSessions.length} sessions, {totalResources} resources)
               </span>
             )}
           </TabsTrigger>
@@ -75,7 +90,7 @@ function App() {
         </TabsList>
 
         <TabsContent value="sessions" className="flex-1 m-0">
-          {displaySessions.length === 0 ? (
+          {filteredSessions.length === 0 ? (
             <EmptySessionsMessage status={status} isConnected={isConnected} />
           ) : (
             <SessionsPanel />

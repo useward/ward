@@ -145,6 +145,7 @@ const processSessions = (state: ProfilingState): ReadonlyArray<PageSession> => {
     if (!newSessions.has(sessionId) && !state.sessionSpans.has(sessionId)) {
       const emptySession: PageSession = {
         id: sessionId,
+        projectId: navEvent.projectId,
         url: navEvent.url,
         route: navEvent.route,
         navigationType: navEvent.navigationType,
