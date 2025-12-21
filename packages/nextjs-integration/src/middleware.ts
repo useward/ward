@@ -1,7 +1,4 @@
-export function nextDoctorMiddleware(
-  request: Request,
-  response: Response,
-): Response {
+export function wardMiddleware(request: Request, response: Response): Response {
   const traceparent = request.headers.get("traceparent");
   const tracestate = request.headers.get("tracestate");
 

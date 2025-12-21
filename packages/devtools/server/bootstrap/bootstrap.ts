@@ -17,7 +17,7 @@ export function bootstrap(app: Hono) {
     c.json({
       status: "ok",
       timestamp: Date.now(),
-      service: "nextdoctor-collector",
+      service: "ward-collector",
     }),
   );
 

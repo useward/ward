@@ -1,13 +1,3 @@
-import {
-  ATTR_PROJECT_ID,
-  ATTR_SESSION_ID,
-  CLIENT_METRICS_ENDPOINT,
-  CLIENT_SESSION_ID_PREFIX,
-  CLIENT_TRACES_ENDPOINT,
-  NAVIGATION_EVENTS_ENDPOINT,
-  SERVER_PORT,
-  SESSION_ID_HEADER,
-} from "@nextdoctor/shared";
 import { ZoneContextManager } from "@opentelemetry/context-zone";
 import {
   AggregationTemporalityPreference,
@@ -24,6 +14,16 @@ import {
 } from "@opentelemetry/sdk-metrics";
 import { BatchSpanProcessor, type Span } from "@opentelemetry/sdk-trace-base";
 import { WebTracerProvider } from "@opentelemetry/sdk-trace-web";
+import {
+  ATTR_PROJECT_ID,
+  ATTR_SESSION_ID,
+  CLIENT_METRICS_ENDPOINT,
+  CLIENT_SESSION_ID_PREFIX,
+  CLIENT_TRACES_ENDPOINT,
+  NAVIGATION_EVENTS_ENDPOINT,
+  SERVER_PORT,
+  SESSION_ID_HEADER,
+} from "@ward/shared";
 
 type NavigationType = "initial" | "navigation" | "back-forward";
 
@@ -81,12 +81,12 @@ class SessionManager {
   }
 
   private readServerSessionId(): string | null {
-    const meta = document.querySelector('meta[name="nextdoctor-session-id"]');
+    const meta = document.querySelector('meta[name="ward-session-id"]');
     return meta?.getAttribute("content") ?? null;
   }
 
   private readProjectId(): string {
-    const meta = document.querySelector('meta[name="nextdoctor-project-id"]');
+    const meta = document.querySelector('meta[name="ward-project-id"]');
     return meta?.getAttribute("content") ?? "unknown-project";
   }
 
@@ -102,7 +102,7 @@ class SessionManager {
       keepalive: true,
     }).catch((error) => {
       if (process.env.NODE_ENV === "development") {
-        console.warn("[nextdoctor] Failed to send navigation event:", error);
+        console.warn("[ward] Failed to send navigation event:", error);
       }
     });
   }

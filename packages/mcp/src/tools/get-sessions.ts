@@ -1,4 +1,4 @@
-import type { PageSession } from "@nextdoctor/domain";
+import type { PageSession } from "@ward/domain";
 import type { SessionStore } from "../state/session-store";
 
 export interface GetSessionsArgs {
@@ -85,10 +85,10 @@ export const getSessions = (
 
   if (sessions.length === 0) {
     if (!store.isConnected) {
-      return `Not connected to NextDoctor DevTools.
+      return `Not connected to Ward DevTools.
 
 To start recording:
-1. Ensure NextDoctor DevTools server is running (npx @nextdoctor/devtools)
+1. Ensure Ward DevTools server is running (npx @ward/devtools)
 2. Navigate to pages in your Next.js app to generate telemetry
 3. Sessions will appear here automatically`;
     }

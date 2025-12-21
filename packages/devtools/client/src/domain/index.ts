@@ -1,4 +1,4 @@
-export * from "@nextdoctor/domain";
+export * from "@ward/domain";
 
 export * from "./profiling-service";
 export * from "./runtime";

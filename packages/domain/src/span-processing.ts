@@ -8,10 +8,10 @@ import type {
 import { StatusCode } from "./otel-types";
 import type { SpanCategory, SpanOrigin, SpanStatus, TraceSpan } from "./types";
 
-const ATTR_REQUEST_ID = "nextdoctor.request.id";
-const ATTR_SESSION_ID = "nextdoctor.session.id";
-const ATTR_PROJECT_ID = "nextdoctor.project.id";
-const ATTR_SPAN_CATEGORY = "nextdoctor.span.category";
+const ATTR_REQUEST_ID = "ward.request.id";
+const ATTR_SESSION_ID = "ward.session.id";
+const ATTR_PROJECT_ID = "ward.project.id";
+const ATTR_SPAN_CATEGORY = "ward.span.category";
 
 interface RawSpan extends TraceSpan {
   readonly requestId: string | undefined;

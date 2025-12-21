@@ -18,7 +18,7 @@ interface ResolveData {
   request: string;
 }
 
-export function withNextDoctor(config: NextConfig = {}): NextConfig {
+export function withWard(config: NextConfig = {}): NextConfig {
   const originalWebpack = config.webpack;
 
   return {
@@ -46,7 +46,7 @@ export function withNextDoctor(config: NextConfig = {}): NextConfig {
               const isServerLayer =
                 layer === "rsc" || layer === "action-browser";
               if (isServerLayer && !isFromNodeModules) {
-                resource.request = "nextdoctor/server-react";
+                resource.request = "ward/server-react";
               }
             },
           ),

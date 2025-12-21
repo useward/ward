@@ -1,4 +1,4 @@
-import { SESSION_ID_HEADER } from "@nextdoctor/shared";
+import { SESSION_ID_HEADER } from "@ward/shared";
 import type { Hono } from "hono";
 import { cors } from "hono/cors";
 

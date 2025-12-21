@@ -1,5 +1,5 @@
 import * as path from "node:path";
-import { SERVER_PORT } from "@nextdoctor/shared";
+import { SERVER_PORT } from "@ward/shared";
 
 export interface McpConfig {
   readonly devtoolsUrl: string;
@@ -8,8 +8,8 @@ export interface McpConfig {
 }
 
 export const loadConfig = (): McpConfig => {
-  const port = process.env.NEXTDOCTOR_PORT ?? SERVER_PORT;
-  const devtoolsUrl = process.env.NEXTDOCTOR_URL ?? `http://localhost:${port}`;
+  const port = process.env.WARD_PORT ?? SERVER_PORT;
+  const devtoolsUrl = process.env.WARD_URL ?? `http://localhost:${port}`;
 
   return {
     devtoolsUrl,

@@ -1,11 +1,11 @@
-export interface NextDoctorConfig {
+export interface WardConfig {
   projectId?: string;
   debug?: boolean;
 }
 
 const GENERIC_NAMES = ["next-app", "my-app", "app", "web", "frontend"];
 
-export function resolveProjectId(config?: NextDoctorConfig): string {
+export function resolveProjectId(config?: WardConfig): string {
   if (config?.projectId) {
     return config.projectId;
   }
@@ -28,7 +28,7 @@ export function resolveProjectId(config?: NextDoctorConfig): string {
   return "unknown-project";
 }
 
-const PROJECT_ID_KEY = Symbol.for("nextdoctor.projectId");
+const PROJECT_ID_KEY = Symbol.for("ward.projectId");
 const globalWithProjectId = globalThis as unknown as Record<symbol, string>;
 
 export function setProjectId(projectId: string): void {

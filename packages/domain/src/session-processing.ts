@@ -66,7 +66,7 @@ const inferResourceType = (span: RawSpan): ResourceType => {
 
 const extractUrl = (span: RawSpan): string => {
   return String(
-    span.attributes["nextdoctor.request.url"] ??
+    span.attributes["ward.request.url"] ??
       span.attributes["url.full"] ??
       span.attributes["http.url"] ??
       span.attributes["http.target"] ??
@@ -98,7 +98,7 @@ const isCached = (span: RawSpan): boolean => {
 };
 
 const extractInitiator = (span: RawSpan): string | undefined => {
-  return span.attributes["nextdoctor.fetch.initiator"] as string | undefined;
+  return span.attributes["ward.fetch.initiator"] as string | undefined;
 };
 
 const spanToResource = (
@@ -356,7 +356,7 @@ const extractRoute = (spans: ReadonlyArray<RawSpan>): string => {
 
   for (const span of sortedByStart) {
     const url =
-      span.attributes["nextdoctor.request.url"] ??
+      span.attributes["ward.request.url"] ??
       span.attributes["url.full"] ??
       span.attributes["http.url"];
     if (url && typeof url === "string") {
@@ -381,8 +381,7 @@ const extractRoute = (spans: ReadonlyArray<RawSpan>): string => {
 
   for (const span of sortedByStart) {
     const route =
-      span.attributes["nextdoctor.request.route"] ??
-      span.attributes["http.route"];
+      span.attributes["ward.request.route"] ?? span.attributes["http.route"];
     if (route && typeof route === "string" && route !== "/") {
       return route;
     }
@@ -406,7 +405,7 @@ const extractRoute = (spans: ReadonlyArray<RawSpan>): string => {
 const extractSessionUrl = (spans: ReadonlyArray<RawSpan>): string => {
   for (const span of spans) {
     const url =
-      span.attributes["nextdoctor.request.url"] ??
+      span.attributes["ward.request.url"] ??
       span.attributes["url.full"] ??
       span.attributes["http.url"];
     if (url) return String(url);

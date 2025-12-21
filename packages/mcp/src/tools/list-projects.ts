@@ -8,10 +8,10 @@ export const listProjects = (
 
   if (projects.length === 0) {
     if (!store.isConnected) {
-      return `Not connected to NextDoctor DevTools.
+      return `Not connected to Ward DevTools.
 
 To start recording:
-1. Ensure NextDoctor DevTools server is running (npx @nextdoctor/devtools)
+1. Ensure Ward DevTools server is running (npx @ward/devtools)
 2. Navigate to pages in your Next.js app to generate telemetry
 3. Projects will appear here automatically`;
     }
@@ -19,7 +19,7 @@ To start recording:
     return `No projects have sent telemetry yet.
 
 To start recording:
-1. Ensure your Next.js app is instrumented with @nextdoctor/nextjs-integration
+1. Ensure your Next.js app is instrumented with @ward/nextjs-integration
 2. Navigate to pages in your app to generate telemetry
 3. Projects will appear here automatically`;
   }

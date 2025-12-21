@@ -15,7 +15,7 @@ export default defineConfig([
     dts: true,
     clean: true,
     external: ["next", "next/server", "next/*", "react", "react/jsx-runtime"],
-    noExternal: ["@nextdoctor/shared"],
+    noExternal: ["@ward/shared"],
     platform: "browser",
   },
 ]);

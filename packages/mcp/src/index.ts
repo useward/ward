@@ -9,6 +9,6 @@ const main = async () => {
 };
 
 main().catch((error) => {
-  console.error("[NextDoctor MCP] Fatal error:", error);
+  console.error("[Ward MCP] Fatal error:", error);
   process.exit(1);
 });

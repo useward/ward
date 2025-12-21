@@ -1,9 +1,4 @@
 import {
-  ATTR_PROJECT_ID,
-  ATTR_SESSION_ID,
-  SERVER_TRACES_ENDPOINT,
-} from "@nextdoctor/shared";
-import {
   createContextKey,
   DiagConsoleLogger,
   DiagLogLevel,
@@ -22,10 +17,15 @@ import {
 } from "@opentelemetry/semantic-conventions";
 import { OTLPHttpJsonTraceExporter, registerOTel } from "@vercel/otel";
 import {
+  ATTR_PROJECT_ID,
+  ATTR_SESSION_ID,
+  SERVER_TRACES_ENDPOINT,
+} from "@ward/shared";
+import {
   getProjectId,
-  type NextDoctorConfig,
   resolveProjectId,
   setProjectId,
+  type WardConfig,
 } from "./config.js";
 import {
   InstrumentationManager,
@@ -36,7 +36,7 @@ import { getRequestContext } from "./request-context.js";
 const SERVICE_NAME = "nextjs-server-app";
 const SERVICE_VERSION = "1.0.0";
 
-export const SESSION_ID_CONTEXT_KEY = createContextKey("nextdoctor.sessionId");
+export const SESSION_ID_CONTEXT_KEY = createContextKey("ward.sessionId");
 
 class SessionIdSpanProcessor implements SpanProcessor {
   onStart(span: Span): void {
@@ -80,15 +80,15 @@ class ProjectIdSpanProcessor implements SpanProcessor {
   }
 }
 
-export async function register(config?: NextDoctorConfig) {
-  const isDebug = config?.debug ?? !!process.env.NEXTDOCTOR_DEBUG;
+export async function register(config?: WardConfig) {
+  const isDebug = config?.debug ?? !!process.env.WARD_DEBUG;
 
   const projectId = resolveProjectId(config);
   setProjectId(projectId);
 
   if (isDebug) {
     diag.setLogger(new DiagConsoleLogger(), DiagLogLevel.INFO);
-    console.log(`[nextdoctor] Initialized with projectId: ${projectId}`);
+    console.log(`[ward] Initialized with projectId: ${projectId}`);
   }
 
   const traceExporter = new OTLPHttpJsonTraceExporter({
@@ -115,4 +115,4 @@ export async function register(config?: NextDoctorConfig) {
   manager.enable();
 }
 
-export type { NextDoctorConfig };
+export type { WardConfig };

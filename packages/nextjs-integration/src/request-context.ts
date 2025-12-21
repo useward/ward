@@ -1,5 +1,5 @@
-import { SERVER_SESSION_ID_PREFIX } from "@nextdoctor/shared";
 import type { Span } from "@opentelemetry/api";
+import { SERVER_SESSION_ID_PREFIX } from "@ward/shared";
 
 const AsyncLocalStorage = (
   globalThis as unknown as {
@@ -16,7 +16,7 @@ export interface RequestContext {
   route?: string;
 }
 
-const STORAGE_KEY = Symbol.for("nextdoctor.requestContextStorage");
+const STORAGE_KEY = Symbol.for("ward.requestContextStorage");
 const globalWithStorage = globalThis as unknown as Record<
   symbol,
   import("node:async_hooks").AsyncLocalStorage<RequestContext>
@@ -52,10 +52,10 @@ export function runWithRequestContext<T>(ctx: RequestContext, fn: () => T): T {
   return requestContextStorage.run(ctx, fn);
 }
 
-export const ATTR_REQUEST_ID = "nextdoctor.request.id";
-export const ATTR_REQUEST_URL = "nextdoctor.request.url";
-export const ATTR_REQUEST_ROUTE = "nextdoctor.request.route";
-export const ATTR_COMPONENT_NAME = "nextdoctor.component.name";
-export const ATTR_COMPONENT_FILE = "nextdoctor.component.file";
-export const ATTR_FETCH_INITIATOR = "nextdoctor.fetch.initiator";
-export const ATTR_SPAN_CATEGORY = "nextdoctor.span.category";
+export const ATTR_REQUEST_ID = "ward.request.id";
+export const ATTR_REQUEST_URL = "ward.request.url";
+export const ATTR_REQUEST_ROUTE = "ward.request.route";
+export const ATTR_COMPONENT_NAME = "ward.component.name";
+export const ATTR_COMPONENT_FILE = "ward.component.file";
+export const ATTR_FETCH_INITIATOR = "ward.fetch.initiator";
+export const ATTR_SPAN_CATEGORY = "ward.span.category";

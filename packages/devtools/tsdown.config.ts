@@ -5,5 +5,5 @@ export default defineConfig({
   format: ["esm"],
   dts: true,
   clean: true,
-  noExternal: ["@nextdoctor/shared", "@nextdoctor/core"],
+  noExternal: ["@ward/shared", "@ward/core"],
 });

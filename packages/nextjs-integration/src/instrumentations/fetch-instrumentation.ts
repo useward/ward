@@ -1,10 +1,10 @@
-import { ATTR_SESSION_ID, SERVER_PORT } from "@nextdoctor/shared";
 import { context, SpanKind, SpanStatusCode, trace } from "@opentelemetry/api";
 import {
   ATTR_HTTP_REQUEST_METHOD,
   ATTR_HTTP_RESPONSE_STATUS_CODE,
   ATTR_URL_FULL,
 } from "@opentelemetry/semantic-conventions";
+import { ATTR_SESSION_ID, SERVER_PORT } from "@ward/shared";
 import {
   ATTR_COMPONENT_FILE,
   ATTR_FETCH_INITIATOR,
@@ -14,7 +14,7 @@ import {
 } from "../request-context.js";
 import { BaseInstrumentation } from "./base-instrumentation.js";
 
-const INSTRUMENTATION_NAME = "nextdoctor-fetch-instrumentation";
+const INSTRUMENTATION_NAME = "ward-fetch-instrumentation";
 const INSTRUMENTATION_VERSION = "1.0.0";
 
 const IGNORE_PATTERNS = [
@@ -86,9 +86,9 @@ export class FetchInstrumentation extends BaseInstrumentation {
       if (requestCtx) {
         attributes[ATTR_REQUEST_ID] = requestCtx.requestId;
         attributes[ATTR_SESSION_ID] = requestCtx.sessionId;
-        attributes["nextdoctor.parent.url"] = requestCtx.url;
+        attributes["ward.parent.url"] = requestCtx.url;
         if (requestCtx.route) {
-          attributes["nextdoctor.parent.route"] = requestCtx.route;
+          attributes["ward.parent.route"] = requestCtx.route;
         }
       }
 
@@ -98,7 +98,7 @@ export class FetchInstrumentation extends BaseInstrumentation {
           attributes[ATTR_COMPONENT_FILE] = callSite.file;
         }
         if (callSite.functionName) {
-          attributes["nextdoctor.fetch.function"] = callSite.functionName;
+          attributes["ward.fetch.function"] = callSite.functionName;
         }
       }
 
@@ -297,7 +297,7 @@ export class FetchInstrumentation extends BaseInstrumentation {
 
       const skipPatterns = [
         "node_modules",
-        "nextdoctor",
+        "ward",
         "next/dist",
         "<anonymous>",
         "node:internal",

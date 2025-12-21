@@ -1,5 +1,5 @@
 {
-  "name": "@nextdoctor/domain",
+  "name": "@ward/domain",
   "private": true,
   "version": "0.0.1",
   "type": "module",
@@ -15,7 +15,7 @@
     "dev": "tsdown src/index.ts --format esm --dts --watch"
   },
   "dependencies": {
-    "@nextdoctor/shared": "workspace:*",
+    "@ward/shared": "workspace:*",
     "effect": "^3.19.8"
   },
   "devDependencies": {

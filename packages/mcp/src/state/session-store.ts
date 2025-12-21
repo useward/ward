@@ -9,8 +9,8 @@ import {
   type Resource,
   type SessionState,
   sortSessionsByTime,
-} from "@nextdoctor/domain";
-import { isValidSessionId } from "@nextdoctor/shared";
+} from "@ward/domain";
+import { isValidSessionId } from "@ward/shared";
 import type { McpConfig } from "../config";
 import { SSEClient, type TelemetryEvent } from "./sse-client";
 
@@ -37,7 +37,7 @@ export class SessionStore {
         this.connected = false;
       },
       onError: (error) => {
-        console.error("[NextDoctor MCP]", error.message);
+        console.error("[Ward MCP]", error.message);
       },
     });
   }

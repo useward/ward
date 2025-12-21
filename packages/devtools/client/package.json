@@ -1,5 +1,5 @@
 {
-  "name": "@nextdoctor/devtools-client",
+  "name": "@ward/devtools-client",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -11,8 +11,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@nextdoctor/domain": "workspace:*",
-    "@nextdoctor/shared": "workspace:*",
+    "@ward/domain": "workspace:*",
+    "@ward/shared": "workspace:*",
     "@radix-ui/react-scroll-area": "^1.2.10",
     "@radix-ui/react-separator": "^1.1.8",
     "@radix-ui/react-slot": "^1.2.4",

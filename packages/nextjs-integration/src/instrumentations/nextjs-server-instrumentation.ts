@@ -1,4 +1,3 @@
-import { ATTR_SESSION_ID, SESSION_ID_HEADER } from "@nextdoctor/shared";
 import {
   type Attributes,
   type AttributeValue,
@@ -16,6 +15,7 @@ import {
   ATTR_URL_FULL,
   ATTR_URL_PATH,
 } from "@opentelemetry/semantic-conventions";
+import { ATTR_SESSION_ID, SESSION_ID_HEADER } from "@ward/shared";
 
 import {
   ATTR_REQUEST_ID,
@@ -29,7 +29,7 @@ import {
 } from "../request-context.js";
 import { BaseInstrumentation } from "./base-instrumentation.js";
 
-const SESSION_ID_CONTEXT_KEY = createContextKey("nextdoctor.sessionId");
+const SESSION_ID_CONTEXT_KEY = createContextKey("ward.sessionId");
 
 const DEFAULT_SPAN_NAME = "nextjs.page.render";
 const INSTRUMENTATION_NAME = "nextjs-server-instrumentation";

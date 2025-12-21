@@ -1,5 +1,5 @@
 {
-  "name": "@nextdoctor/devtools",
+  "name": "@ward/devtools",
   "private": "true",
   "version": "1.0.0",
   "description": "",
@@ -24,7 +24,7 @@
     "start:server": "node dist/index.mjs"
   },
   "bin": {
-    "nextdoctor": "./dist/index.mjs"
+    "ward": "./dist/index.mjs"
   },
   "author": "",
   "license": "ISC",
@@ -36,7 +36,7 @@
     "hono": "^4.10.7"
   },
   "devDependencies": {
-    "@nextdoctor/shared": "workspace:*",
+    "@ward/shared": "workspace:*",
     "@types/node": "^24.10.1",
     "tsdown": "^0.16.7",
     "tsx": "^4.20.6",

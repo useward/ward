@@ -18,7 +18,7 @@ export const createServer = async (config: McpConfig) => {
   const autoProjectId = resolveProjectId();
 
   const server = new McpServer({
-    name: "nextdoctor",
+    name: "ward",
     version: "0.0.1",
   });
 

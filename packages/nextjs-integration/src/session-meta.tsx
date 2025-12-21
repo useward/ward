@@ -1,5 +1,5 @@
-const STORAGE_KEY = Symbol.for("nextdoctor.requestContextStorage");
-const PROJECT_ID_KEY = Symbol.for("nextdoctor.projectId");
+const STORAGE_KEY = Symbol.for("ward.requestContextStorage");
+const PROJECT_ID_KEY = Symbol.for("ward.projectId");
 
 type AsyncLocalStorageType = import("node:async_hooks").AsyncLocalStorage<{
   sessionId?: string;
@@ -30,8 +30,8 @@ export function SessionMeta() {
 
   return (
     <>
-      {sessionId && <meta name="nextdoctor-session-id" content={sessionId} />}
-      {projectId && <meta name="nextdoctor-project-id" content={projectId} />}
+      {sessionId && <meta name="ward-session-id" content={sessionId} />}
+      {projectId && <meta name="ward-project-id" content={projectId} />}
     </>
   );
 }

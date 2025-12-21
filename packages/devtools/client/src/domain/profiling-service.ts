@@ -5,8 +5,8 @@ import {
   type NavigationEvent,
   type PageSession,
   processSessions,
-} from "@nextdoctor/domain";
-import { isValidSessionId } from "@nextdoctor/shared";
+} from "@ward/domain";
+import { isValidSessionId } from "@ward/shared";
 import * as Context from "effect/Context";
 import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";

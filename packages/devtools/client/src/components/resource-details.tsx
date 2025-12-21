@@ -265,7 +265,7 @@ function AttributesSection({
   attributes: Record<string, string | number | boolean>;
 }) {
   const entries = Object.entries(attributes).filter(
-    ([key]) => !key.startsWith("nextdoctor."),
+    ([key]) => !key.startsWith("ward."),
   );
 
   if (entries.length === 0) return null;

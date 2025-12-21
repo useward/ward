@@ -2,7 +2,7 @@ import {
   findCriticalPath,
   type PageSession,
   type Resource,
-} from "@nextdoctor/domain";
+} from "@ward/domain";
 import type { SessionStore } from "../state/session-store";
 
 export interface DiagnosePerformanceArgs {

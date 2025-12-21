@@ -1,9 +1,9 @@
 {
-  "name": "@nextdoctor/mcp",
+  "name": "@ward/mcp",
   "version": "0.0.1",
   "type": "module",
   "bin": {
-    "nextdoctor-mcp": "./dist/index.mjs"
+    "ward-mcp": "./dist/index.mjs"
   },
   "exports": {
     ".": {
@@ -19,8 +19,8 @@
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.0.0",
-    "@nextdoctor/domain": "workspace:*",
-    "@nextdoctor/shared": "workspace:*",
+    "@ward/domain": "workspace:*",
+    "@ward/shared": "workspace:*",
     "eventsource": "^3.0.6",
     "zod": "^3.25.56"
   },

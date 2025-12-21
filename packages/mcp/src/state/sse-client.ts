@@ -5,7 +5,7 @@ import {
   parseNavigationEvent,
   type RawSpan,
   type SpanOrigin,
-} from "@nextdoctor/domain";
+} from "@ward/domain";
 import { EventSource } from "eventsource";
 
 export interface TelemetryEvent {
@@ -51,7 +51,7 @@ export class SSEClient {
         } else {
           this.options.onError(
             new Error(
-              `Failed to connect to NextDoctor DevTools at ${this.options.url} after ${this.maxReconnectAttempts} attempts`,
+              `Failed to connect to Ward DevTools at ${this.options.url} after ${this.maxReconnectAttempts} attempts`,
             ),
           );
         }
@@ -80,7 +80,7 @@ export class SSEClient {
     } catch (error) {
       this.options.onError(
         new Error(
-          `Failed to connect to NextDoctor DevTools at ${this.options.url}: ${error}`,
+          `Failed to connect to Ward DevTools at ${this.options.url}: ${error}`,
         ),
       );
     }

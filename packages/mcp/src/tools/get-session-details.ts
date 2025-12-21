@@ -1,4 +1,4 @@
-import type { Resource } from "@nextdoctor/domain";
+import type { Resource } from "@ward/domain";
 import type { SessionStore } from "../state/session-store";
 
 export interface GetSessionDetailsArgs {
@@ -59,7 +59,7 @@ const formatResource = (
 
   if (includeAttrs && Object.keys(resource.attributes).length > 0) {
     const attrLines = Object.entries(resource.attributes)
-      .filter(([key]) => !key.startsWith("nextdoctor."))
+      .filter(([key]) => !key.startsWith("ward."))
       .slice(0, 10)
       .map(([key, value]) => `${indent}    ${key}: ${value}`);
     lines.push(...attrLines);
