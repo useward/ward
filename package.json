@@ -9,7 +9,7 @@
     "test": "vitest",
     "test:e2e": "playwright test",
     "lint": "biome check .",
-    "format": "biome format --write .",
+    "format": "biome check --write .",
     "typecheck": "pnpm --filter './packages/*' typecheck",
     "clean": "pnpm --filter './packages/*' clean",
     "changeset": "changeset",
