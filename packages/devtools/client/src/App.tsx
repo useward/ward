@@ -4,26 +4,25 @@ import { ProfilingControls } from "@/components/profiling-controls";
 import { ResourceDetails } from "@/components/resource-details";
 import { SessionsPanel } from "@/components/sessions-panel";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useProfilingStore } from "@/lib/profiling-store";
+import {
+  filteredSessionsSelector,
+  projectIdsSelector,
+  useProfilingStore,
+} from "@/lib/profiling-store";
 
 function App() {
   const {
     status,
-    sessions,
     isConnected,
     selectedSessionId,
     selectedResourceId,
     selectedProjectId,
     selectProject,
   } = useProfilingStore();
+  const projects = useProfilingStore(projectIdsSelector);
+  const allFilteredSessions = useProfilingStore(filteredSessionsSelector);
 
-  const projects = [...new Set(sessions.map((s) => s.projectId))].sort();
-  const filteredSessions =
-    status === "idle"
-      ? []
-      : selectedProjectId
-        ? sessions.filter((s) => s.projectId === selectedProjectId)
-        : sessions;
+  const filteredSessions = status === "idle" ? [] : allFilteredSessions;
 
   useEffect(() => {
     document.documentElement.classList.add("dark");

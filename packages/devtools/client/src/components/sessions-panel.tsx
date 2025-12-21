@@ -27,7 +27,10 @@ import type {
   ResourceFilterState,
 } from "@/domain";
 import { filterResources } from "@/domain";
-import { useProfilingStore } from "@/lib/profiling-store";
+import {
+  filteredSessionsSelector,
+  useProfilingStore,
+} from "@/lib/profiling-store";
 import { cn } from "@/lib/utils";
 import {
   countDataFetches,
@@ -39,21 +42,9 @@ type SortField = "time" | "duration" | "resources";
 type SortOrder = "asc" | "desc";
 
 export function SessionsPanel() {
-  const {
-    sessions: allSessions,
-    selectedSessionId,
-    selectedProjectId,
-    selectSession,
-    filters,
-    setFilters,
-    zoomPan,
-    setZoom,
-    resetZoomPan,
-  } = useProfilingStore();
-
-  const sessions = selectedProjectId
-    ? allSessions.filter((s) => s.projectId === selectedProjectId)
-    : allSessions;
+  const { selectedSessionId, selectSession, filters, setFilters, zoomPan, setZoom, resetZoomPan } =
+    useProfilingStore();
+  const sessions = useProfilingStore(filteredSessionsSelector);
 
   const [searchQuery, setSearchQuery] = useState("");
   const [filterType, setFilterType] = useState<NavigationType | "ALL">("ALL");

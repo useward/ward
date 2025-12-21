@@ -28,6 +28,14 @@ interface ProfilingStoreState {
   streamFiber: StreamFiber | null;
 }
 
+export const projectIdsSelector = (state: ProfilingStoreState) =>
+  [...new Set(state.sessions.map((s) => s.projectId))].sort();
+
+export const filteredSessionsSelector = (state: ProfilingStoreState) =>
+  state.selectedProjectId
+    ? state.sessions.filter((s) => s.projectId === state.selectedProjectId)
+    : state.sessions;
+
 interface ProfilingStoreActions {
   startProfiling: () => void;
   stopProfiling: () => void;
@@ -42,8 +50,6 @@ interface ProfilingStoreActions {
   toggleResourceExpanded: (id: string) => void;
   expandAll: () => void;
   collapseAll: () => void;
-  getProjects: () => ReadonlyArray<string>;
-  getFilteredSessions: () => ReadonlyArray<PageSession>;
 }
 
 type ProfilingStore = ProfilingStoreState & ProfilingStoreActions;
@@ -218,20 +224,5 @@ export const useProfilingStore = create<ProfilingStore>((set, get) => ({
       selectedSessionId: null,
       selectedResourceId: null,
     });
-  },
-
-  getProjects: () => {
-    const { sessions } = get();
-    const projects = new Set<string>();
-    for (const session of sessions) {
-      projects.add(session.projectId);
-    }
-    return [...projects].sort();
-  },
-
-  getFilteredSessions: () => {
-    const { sessions, selectedProjectId } = get();
-    if (!selectedProjectId) return sessions;
-    return sessions.filter((s) => s.projectId === selectedProjectId);
   },
 }));
