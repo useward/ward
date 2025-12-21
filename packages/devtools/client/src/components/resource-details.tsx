@@ -1,24 +1,24 @@
 import {
-  X,
-  Server,
-  Monitor,
-  Clock,
-  Database,
-  Zap,
   AlertTriangle,
   CheckCircle,
+  Clock,
+  Database,
   Link2,
+  Monitor,
+  Server,
+  X,
+  Zap,
 } from "lucide-react";
-import { cn } from "@/lib/utils";
-import {
-  RESOURCE_TYPE_CONFIG,
-  ORIGIN_CONFIG,
-  formatDuration,
-  getResourceConfig,
-} from "@/lib/view-models";
+import type { PageSession, Resource } from "@/domain";
 import { Z_INDEX } from "@/lib/design-tokens";
 import { useProfilingStore } from "@/lib/profiling-store";
-import type { Resource, PageSession } from "@/domain";
+import { cn } from "@/lib/utils";
+import {
+  formatDuration,
+  getResourceConfig,
+  ORIGIN_CONFIG,
+  RESOURCE_TYPE_CONFIG,
+} from "@/lib/view-models";
 
 interface ResourceDetailsProps {
   session: PageSession;

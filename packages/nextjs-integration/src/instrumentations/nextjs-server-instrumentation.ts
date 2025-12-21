@@ -1,8 +1,32 @@
 import { ATTR_SESSION_ID, SESSION_ID_HEADER } from "@nextdoctor/shared";
-import { type Attributes, type AttributeValue, context, createContextKey, type Span, SpanKind, SpanStatusCode, trace } from "@opentelemetry/api";
-import { ATTR_HTTP_REQUEST_METHOD, ATTR_HTTP_RESPONSE_STATUS_CODE, ATTR_SERVER_ADDRESS, ATTR_URL_FULL, ATTR_URL_PATH } from "@opentelemetry/semantic-conventions";
+import {
+  type Attributes,
+  type AttributeValue,
+  context,
+  createContextKey,
+  type Span,
+  SpanKind,
+  SpanStatusCode,
+  trace,
+} from "@opentelemetry/api";
+import {
+  ATTR_HTTP_REQUEST_METHOD,
+  ATTR_HTTP_RESPONSE_STATUS_CODE,
+  ATTR_SERVER_ADDRESS,
+  ATTR_URL_FULL,
+  ATTR_URL_PATH,
+} from "@opentelemetry/semantic-conventions";
 
-import { ATTR_REQUEST_ID, ATTR_REQUEST_ROUTE, ATTR_REQUEST_URL, ATTR_SPAN_CATEGORY, generateRequestId, generateSessionId, type RequestContext, runWithRequestContext } from "../request-context.js";
+import {
+  ATTR_REQUEST_ID,
+  ATTR_REQUEST_ROUTE,
+  ATTR_REQUEST_URL,
+  ATTR_SPAN_CATEGORY,
+  generateRequestId,
+  generateSessionId,
+  type RequestContext,
+  runWithRequestContext,
+} from "../request-context.js";
 import { BaseInstrumentation } from "./base-instrumentation.js";
 
 const SESSION_ID_CONTEXT_KEY = createContextKey("nextdoctor.sessionId");
@@ -76,7 +100,9 @@ export class NextJsServerInstrumentation extends BaseInstrumentation {
       if (!originalRenderMethods.has(proto)) {
         originalRenderMethods.set(proto, proto.render);
       } else {
-        this.log("NextServer.prototype.render already patched; re-using original");
+        this.log(
+          "NextServer.prototype.render already patched; re-using original",
+        );
       }
 
       const originalRender = originalRenderMethods.get(proto);
@@ -150,12 +176,15 @@ export class NextJsServerInstrumentation extends BaseInstrumentation {
 
       const requestId = generateRequestId();
 
-      const incomingSessionId = req.headers?.[SESSION_ID_HEADER] as string | undefined;
+      const incomingSessionId = req.headers?.[SESSION_ID_HEADER] as
+        | string
+        | undefined;
       const sessionId = incomingSessionId || generateSessionId();
 
       const isApiRoute = url.includes("/api/") || url.includes("/_next/");
-      const isRscRequest = req.headers?.["rsc"] === "1" ||
-                           req.headers?.accept?.includes("text/x-component");
+      const isRscRequest =
+        req.headers?.["rsc"] === "1" ||
+        req.headers?.accept?.includes("text/x-component");
 
       let dynamicSpanName = spanName;
       if (isApiRoute) {
@@ -164,7 +193,13 @@ export class NextJsServerInstrumentation extends BaseInstrumentation {
         dynamicSpanName = "nextjs.rsc.render";
       }
 
-      const attrs = instrumentation.buildAttributes(req, parsedUrl, requestId, sessionId, isRscRequest);
+      const attrs = instrumentation.buildAttributes(
+        req,
+        parsedUrl,
+        requestId,
+        sessionId,
+        isRscRequest,
+      );
       const span = tracer.startSpan(
         dynamicSpanName,
         { kind: SpanKind.SERVER, attributes: attrs },

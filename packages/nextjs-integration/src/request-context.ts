@@ -1,8 +1,11 @@
 import { SERVER_SESSION_ID_PREFIX } from "@nextdoctor/shared";
 import type { Span } from "@opentelemetry/api";
 
-const AsyncLocalStorage =
-  (globalThis as unknown as { AsyncLocalStorage: typeof import("node:async_hooks").AsyncLocalStorage }).AsyncLocalStorage;
+const AsyncLocalStorage = (
+  globalThis as unknown as {
+    AsyncLocalStorage: typeof import("node:async_hooks").AsyncLocalStorage;
+  }
+).AsyncLocalStorage;
 
 export interface RequestContext {
   requestId: string;
@@ -14,7 +17,10 @@ export interface RequestContext {
 }
 
 const STORAGE_KEY = Symbol.for("nextdoctor.requestContextStorage");
-const globalWithStorage = globalThis as unknown as Record<symbol, import("node:async_hooks").AsyncLocalStorage<RequestContext>>;
+const globalWithStorage = globalThis as unknown as Record<
+  symbol,
+  import("node:async_hooks").AsyncLocalStorage<RequestContext>
+>;
 
 if (!globalWithStorage[STORAGE_KEY]) {
   globalWithStorage[STORAGE_KEY] = new AsyncLocalStorage<RequestContext>();
@@ -42,10 +48,7 @@ export function getRootSpan(): Span | undefined {
   return requestContextStorage.getStore()?.rootSpan;
 }
 
-export function runWithRequestContext<T>(
-  ctx: RequestContext,
-  fn: () => T
-): T {
+export function runWithRequestContext<T>(ctx: RequestContext, fn: () => T): T {
   return requestContextStorage.run(ctx, fn);
 }
 

@@ -8,10 +8,7 @@ const INSTRUMENTATION_VERSION = "1.0.0";
 export function cache<CachedFunction extends Function>(
   fn: CachedFunction,
 ): CachedFunction {
-  const tracer = trace.getTracer(
-    INSTRUMENTATION_NAME,
-    INSTRUMENTATION_VERSION,
-  );
+  const tracer = trace.getTracer(INSTRUMENTATION_NAME, INSTRUMENTATION_VERSION);
   const cachedFn = reactCache(fn);
 
   const instrumentedFn = function (this: unknown, ...args: unknown[]): unknown {

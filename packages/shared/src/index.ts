@@ -19,4 +19,5 @@ export const CLIENT_SESSION_ID_PREFIX = "nav_";
 export const SERVER_SESSION_ID_PREFIX = "srv_";
 
 export const isValidSessionId = (sessionId: string): boolean =>
-  sessionId.startsWith(CLIENT_SESSION_ID_PREFIX) || sessionId.startsWith(SERVER_SESSION_ID_PREFIX);
+  sessionId.startsWith(CLIENT_SESSION_ID_PREFIX) ||
+  sessionId.startsWith(SERVER_SESSION_ID_PREFIX);

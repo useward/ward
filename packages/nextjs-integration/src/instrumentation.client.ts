@@ -62,7 +62,8 @@ class SessionManager {
       currentSessionId: null,
       previousSessionId: null,
       navigationStartTime: 0,
-      currentPathname: typeof window !== "undefined" ? window.location.pathname : "/",
+      currentPathname:
+        typeof window !== "undefined" ? window.location.pathname : "/",
       pendingNavigationSessionId: null,
       pendingNavigationPathname: null,
       navigationInProgress: false,
@@ -143,7 +144,14 @@ class SessionManager {
   }
 
   private isPageRoute(pathname: string): boolean {
-    const nonPagePrefixes = ["/api/", "/rest/", "/v1/", "/g/", "/_next/", "/__nextjs"];
+    const nonPagePrefixes = [
+      "/api/",
+      "/rest/",
+      "/v1/",
+      "/g/",
+      "/_next/",
+      "/__nextjs",
+    ];
     if (nonPagePrefixes.some((prefix) => pathname.startsWith(prefix))) {
       return false;
     }
@@ -183,10 +191,14 @@ class SessionManager {
         return this.state.pendingNavigationSessionId!;
       }
 
-      if (this.state.pendingNavigationSessionId && this.state.pendingNavigationPathname) {
+      if (
+        this.state.pendingNavigationSessionId &&
+        this.state.pendingNavigationPathname
+      ) {
         const isRelatedToNavigation =
           targetPathname === this.state.pendingNavigationPathname ||
-          (this.isPageRoute(targetPathname) && targetPathname !== this.state.currentPathname);
+          (this.isPageRoute(targetPathname) &&
+            targetPathname !== this.state.currentPathname);
 
         if (isRelatedToNavigation) {
           return this.state.pendingNavigationSessionId;
@@ -279,7 +291,8 @@ export function register() {
 
   const sessionSpanProcessor = {
     onStart(span: Span): void {
-      const urlAttr = span.attributes?.["http.url"] || span.attributes?.["url.full"];
+      const urlAttr =
+        span.attributes?.["http.url"] || span.attributes?.["url.full"];
       const sessionId = urlAttr
         ? sessionManager.getSessionIdForUrl(String(urlAttr))
         : sessionManager.getCurrentSessionId();
@@ -296,14 +309,25 @@ export function register() {
 
   const provider = new WebTracerProvider({
     resource,
-    spanProcessors: [sessionSpanProcessor, new BatchSpanProcessor(traceExporter)],
+    spanProcessors: [
+      sessionSpanProcessor,
+      new BatchSpanProcessor(traceExporter),
+    ],
   });
 
   provider.register({ contextManager: new ZoneContextManager() });
 
   const originalFetch = window.fetch;
-  window.fetch = function (input: RequestInfo | URL, init?: RequestInit): Promise<Response> {
-    const url = typeof input === "string" ? input : input instanceof URL ? input.href : input.url;
+  window.fetch = function (
+    input: RequestInfo | URL,
+    init?: RequestInit,
+  ): Promise<Response> {
+    const url =
+      typeof input === "string"
+        ? input
+        : input instanceof URL
+          ? input.href
+          : input.url;
     const sessionId = sessionManager.getSessionIdForUrl(url);
     const headers = new Headers(init?.headers);
 
@@ -319,14 +343,21 @@ export function register() {
       new FetchInstrumentation({
         ignoreUrls: [new RegExp(`localhost:${SERVER_PORT}`)],
         applyCustomAttributesOnSpan: (span, request) => {
-          const url = request instanceof Request ? request.url : String(request);
-          span.setAttribute(ATTR_SESSION_ID, sessionManager.getSessionIdForUrl(url));
+          const url =
+            request instanceof Request ? request.url : String(request);
+          span.setAttribute(
+            ATTR_SESSION_ID,
+            sessionManager.getSessionIdForUrl(url),
+          );
         },
       }),
       new XMLHttpRequestInstrumentation({
         applyCustomAttributesOnSpan: (span, xhr) => {
           const url = xhr.responseURL || "";
-          span.setAttribute(ATTR_SESSION_ID, sessionManager.getSessionIdForUrl(url));
+          span.setAttribute(
+            ATTR_SESSION_ID,
+            sessionManager.getSessionIdForUrl(url),
+          );
         },
       }),
     ],
@@ -367,7 +398,9 @@ export function register() {
 
   const navigationObserver = new PerformanceObserver((list) => {
     for (const entry of list.getEntries()) {
-      sessionManager.sendInitialNavigationEvent(entry as PerformanceNavigationTiming);
+      sessionManager.sendInitialNavigationEvent(
+        entry as PerformanceNavigationTiming,
+      );
     }
   });
 
@@ -414,7 +447,8 @@ export function register() {
           "longtask.start_time": typedEntry.startTime.toFixed(2),
         });
       } else if (typedEntry.entryType === "largest-contentful-paint") {
-        const lcpTime = typedEntry.renderTime ?? typedEntry.loadTime ?? typedEntry.startTime;
+        const lcpTime =
+          typedEntry.renderTime ?? typedEntry.loadTime ?? typedEntry.startTime;
         sessionManager.setLcp(lcpTime);
         lcpValue.record(typedEntry.duration, {
           ...commonAttributes,

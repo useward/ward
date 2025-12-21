@@ -9,6 +9,6 @@ export const Z_INDEX = {
   tooltip: 70,
   toast: 80,
   overlay: 90,
-} as const
+} as const;
 
-export type ZIndexLevel = keyof typeof Z_INDEX
+export type ZIndexLevel = keyof typeof Z_INDEX;

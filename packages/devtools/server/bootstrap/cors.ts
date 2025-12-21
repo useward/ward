@@ -1,6 +1,6 @@
+import { SESSION_ID_HEADER } from "@nextdoctor/shared";
 import type { Hono } from "hono";
 import { cors } from "hono/cors";
-import { SESSION_ID_HEADER } from "@nextdoctor/shared";
 
 const ALLOWED_HEADERS = ["Content-Type", "Authorization", SESSION_ID_HEADER];
 

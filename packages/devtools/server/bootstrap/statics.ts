@@ -1,7 +1,7 @@
-import { serveStatic } from "@hono/node-server/serve-static";
-import type { Hono } from "hono";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { serveStatic } from "@hono/node-server/serve-static";
+import type { Hono } from "hono";
 
 export function serveStatics(app: Hono) {
   const filename = fileURLToPath(import.meta.url);

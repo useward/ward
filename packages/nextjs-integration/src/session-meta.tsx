@@ -1,6 +1,8 @@
 const STORAGE_KEY = Symbol.for("nextdoctor.requestContextStorage");
 
-type AsyncLocalStorageType = import("node:async_hooks").AsyncLocalStorage<{ sessionId?: string }>;
+type AsyncLocalStorageType = import("node:async_hooks").AsyncLocalStorage<{
+  sessionId?: string;
+}>;
 
 function getSessionId(): string | undefined {
   const g = globalThis as unknown as {

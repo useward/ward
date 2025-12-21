@@ -1,25 +1,39 @@
-import { useEffect } from "react"
-import { DevtoolHeader } from "@/components/devtool-header"
-import { ProfilingControls } from "@/components/profiling-controls"
-import { SessionsPanel } from "@/components/sessions-panel"
-import { ResourceDetails } from "@/components/resource-details"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { useProfilingStore } from "@/lib/profiling-store"
+import { useEffect } from "react";
+import { DevtoolHeader } from "@/components/devtool-header";
+import { ProfilingControls } from "@/components/profiling-controls";
+import { ResourceDetails } from "@/components/resource-details";
+import { SessionsPanel } from "@/components/sessions-panel";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useProfilingStore } from "@/lib/profiling-store";
 
 function App() {
-  const { sessions, status, isConnected, selectedSessionId, selectedResourceId } = useProfilingStore()
+  const {
+    sessions,
+    status,
+    isConnected,
+    selectedSessionId,
+    selectedResourceId,
+  } = useProfilingStore();
 
   useEffect(() => {
-    document.documentElement.classList.add("dark")
-  }, [])
+    document.documentElement.classList.add("dark");
+  }, []);
 
-  const displaySessions = status === "idle" ? [] : sessions
-  const totalResources = displaySessions.reduce((sum, s) => sum + s.stats.totalResources, 0)
-  const selectedSession = displaySessions.find((s) => s.id === selectedSessionId) ?? null
+  const displaySessions = status === "idle" ? [] : sessions;
+  const totalResources = displaySessions.reduce(
+    (sum, s) => sum + s.stats.totalResources,
+    0,
+  );
+  const selectedSession =
+    displaySessions.find((s) => s.id === selectedSessionId) ?? null;
 
   return (
     <div className="h-screen flex flex-col bg-background text-foreground">
-      <DevtoolHeader projectName="my-nextjs-app" projectUrl="localhost:3000" isConnected={isConnected} />
+      <DevtoolHeader
+        projectName="my-nextjs-app"
+        projectUrl="localhost:3000"
+        isConnected={isConnected}
+      />
 
       <ProfilingControls />
 
@@ -66,31 +80,42 @@ function App() {
           ) : (
             <SessionsPanel />
           )}
-          {selectedSession && selectedResourceId && <ResourceDetails session={selectedSession} />}
+          {selectedSession && selectedResourceId && (
+            <ResourceDetails session={selectedSession} />
+          )}
         </TabsContent>
 
         <TabsContent value="renders" className="flex-1 m-0 p-4">
-          <div className="text-muted-foreground">Component re-renders tracking - coming soon</div>
+          <div className="text-muted-foreground">
+            Component re-renders tracking - coming soon
+          </div>
         </TabsContent>
 
         <TabsContent value="cache" className="flex-1 m-0 p-4">
-          <div className="text-muted-foreground">Cache analysis - coming soon</div>
+          <div className="text-muted-foreground">
+            Cache analysis - coming soon
+          </div>
         </TabsContent>
 
         <TabsContent value="metrics" className="flex-1 m-0 p-4">
-          <div className="text-muted-foreground">Web Vitals metrics - coming soon</div>
+          <div className="text-muted-foreground">
+            Web Vitals metrics - coming soon
+          </div>
         </TabsContent>
       </Tabs>
     </div>
-  )
+  );
 }
 
 interface EmptySessionsMessageProps {
-  status: "idle" | "recording" | "stopped"
-  isConnected: boolean
+  status: "idle" | "recording" | "stopped";
+  isConnected: boolean;
 }
 
-function EmptySessionsMessage({ status, isConnected }: EmptySessionsMessageProps) {
+function EmptySessionsMessage({
+  status,
+  isConnected,
+}: EmptySessionsMessageProps) {
   const messages = {
     idle: {
       primary: 'Click "Start Profiling" to begin capturing page sessions',
@@ -99,15 +124,16 @@ function EmptySessionsMessage({ status, isConnected }: EmptySessionsMessageProps
     },
     recording: {
       primary: "Recording... Navigate your app to capture traces",
-      secondary: "Server and client traces will be automatically correlated by page session.",
+      secondary:
+        "Server and client traces will be automatically correlated by page session.",
     },
     stopped: {
       primary: "No sessions captured",
       secondary: 'Click "Record Again" to start a new session',
     },
-  }
+  };
 
-  const { primary, secondary } = messages[status]
+  const { primary, secondary } = messages[status];
 
   return (
     <div className="flex items-center justify-center h-full">
@@ -116,12 +142,13 @@ function EmptySessionsMessage({ status, isConnected }: EmptySessionsMessageProps
         <p className="text-xs text-muted-foreground">{secondary}</p>
         {status === "recording" && !isConnected && (
           <p className="text-xs text-amber-500">
-            Not connected to telemetry stream. Make sure the devtool server is running on port 19393.
+            Not connected to telemetry stream. Make sure the devtool server is
+            running on port 19393.
           </p>
         )}
       </div>
     </div>
-  )
+  );
 }
 
-export default App
+export default App;

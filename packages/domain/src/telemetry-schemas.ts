@@ -1,16 +1,24 @@
-import * as Schema from "effect/Schema"
-import type { NavigationType } from "./types"
+import * as Schema from "effect/Schema";
+import type { NavigationType } from "./types";
 
-const NavigationTypeSchema = Schema.Literal("initial", "navigation", "back-forward")
+const NavigationTypeSchema = Schema.Literal(
+  "initial",
+  "navigation",
+  "back-forward",
+);
 
 const NavigationTimingSchema = Schema.Struct({
   navigationStart: Schema.Number,
   responseStart: Schema.NullOr(Schema.Number),
   domContentLoaded: Schema.NullOr(Schema.Number),
   load: Schema.NullOr(Schema.Number),
-  fcp: Schema.optionalWith(Schema.NullOr(Schema.Number), { default: () => null }),
-  lcp: Schema.optionalWith(Schema.NullOr(Schema.Number), { default: () => null }),
-})
+  fcp: Schema.optionalWith(Schema.NullOr(Schema.Number), {
+    default: () => null,
+  }),
+  lcp: Schema.optionalWith(Schema.NullOr(Schema.Number), {
+    default: () => null,
+  }),
+});
 
 export const NavigationEventSchema = Schema.Struct({
   sessionId: Schema.String,
@@ -19,30 +27,32 @@ export const NavigationEventSchema = Schema.Struct({
   navigationType: NavigationTypeSchema,
   previousSessionId: Schema.NullOr(Schema.String),
   timing: NavigationTimingSchema,
-})
+});
 
 export interface ParsedNavigationEvent {
-  sessionId: string
-  url: string
-  route: string
-  navigationType: NavigationType
-  previousSessionId: string | undefined
+  sessionId: string;
+  url: string;
+  route: string;
+  navigationType: NavigationType;
+  previousSessionId: string | undefined;
   timing: {
-    navigationStart: number
-    responseStart: number | undefined
-    domContentLoaded: number | undefined
-    load: number | undefined
-    fcp: number | undefined
-    lcp: number | undefined
-  }
+    navigationStart: number;
+    responseStart: number | undefined;
+    domContentLoaded: number | undefined;
+    load: number | undefined;
+    fcp: number | undefined;
+    lcp: number | undefined;
+  };
 }
 
-export const parseNavigationEvent = (data: unknown): ParsedNavigationEvent | undefined => {
-  const result = Schema.decodeUnknownOption(NavigationEventSchema)(data)
+export const parseNavigationEvent = (
+  data: unknown,
+): ParsedNavigationEvent | undefined => {
+  const result = Schema.decodeUnknownOption(NavigationEventSchema)(data);
   if (result._tag === "None") {
-    return undefined
+    return undefined;
   }
-  const parsed = result.value
+  const parsed = result.value;
   return {
     sessionId: parsed.sessionId,
     url: parsed.url,
@@ -57,5 +67,5 @@ export const parseNavigationEvent = (data: unknown): ParsedNavigationEvent | und
       fcp: parsed.timing.fcp ?? undefined,
       lcp: parsed.timing.lcp ?? undefined,
     },
-  }
-}
+  };
+};

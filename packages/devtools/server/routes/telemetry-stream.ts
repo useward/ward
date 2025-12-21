@@ -27,7 +27,11 @@ export function createTelemetryStreamRouter(eventEmitter: EventEmitter) {
 
   telemetryStreamRouter.get("/v1/telemetry-stream", (c) =>
     streamSSE(c, async (stream) => {
-      const telemetryHandler = async ({ origin, entity, data }: TelemetryEvent) => {
+      const telemetryHandler = async ({
+        origin,
+        entity,
+        data,
+      }: TelemetryEvent) => {
         await stream.writeSSE({
           data,
           event: `${origin}-${entity}`,

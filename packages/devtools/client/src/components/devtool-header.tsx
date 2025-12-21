@@ -1,14 +1,18 @@
-import { Activity, Circle, Settings, X } from "lucide-react"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
+import { Activity, Circle, Settings, X } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 
 interface DevtoolHeaderProps {
-  projectName: string
-  projectUrl: string
-  isConnected: boolean
+  projectName: string;
+  projectUrl: string;
+  isConnected: boolean;
 }
 
-export function DevtoolHeader({ projectName, projectUrl, isConnected }: DevtoolHeaderProps) {
+export function DevtoolHeader({
+  projectName,
+  projectUrl,
+  isConnected,
+}: DevtoolHeaderProps) {
   return (
     <header className="flex items-center justify-between px-4 py-3 bg-card border-b border-border">
       <div className="flex items-center gap-3">
@@ -19,7 +23,9 @@ export function DevtoolHeader({ projectName, projectUrl, isConnected }: DevtoolH
         <Badge variant="secondary" className="font-mono text-xs">
           {projectName}
         </Badge>
-        <span className="text-xs text-muted-foreground font-mono">{projectUrl}</span>
+        <span className="text-xs text-muted-foreground font-mono">
+          {projectUrl}
+        </span>
         {isConnected && (
           <div className="flex items-center gap-1.5">
             <Circle className="size-2" fill="#22c55e" color="#22c55e" />
@@ -36,5 +42,5 @@ export function DevtoolHeader({ projectName, projectUrl, isConnected }: DevtoolH
         </Button>
       </div>
     </header>
-  )
+  );
 }

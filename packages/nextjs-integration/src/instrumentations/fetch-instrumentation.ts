@@ -1,21 +1,16 @@
-import {
-  context,
-  SpanKind,
-  SpanStatusCode,
-  trace,
-} from "@opentelemetry/api";
+import { ATTR_SESSION_ID, SERVER_PORT } from "@nextdoctor/shared";
+import { context, SpanKind, SpanStatusCode, trace } from "@opentelemetry/api";
 import {
   ATTR_HTTP_REQUEST_METHOD,
   ATTR_HTTP_RESPONSE_STATUS_CODE,
   ATTR_URL_FULL,
 } from "@opentelemetry/semantic-conventions";
-import { SERVER_PORT, ATTR_SESSION_ID } from "@nextdoctor/shared";
 import {
-  getRequestContext,
-  ATTR_REQUEST_ID,
-  ATTR_FETCH_INITIATOR,
-  ATTR_SPAN_CATEGORY,
   ATTR_COMPONENT_FILE,
+  ATTR_FETCH_INITIATOR,
+  ATTR_REQUEST_ID,
+  ATTR_SPAN_CATEGORY,
+  getRequestContext,
 } from "../request-context.js";
 import { BaseInstrumentation } from "./base-instrumentation.js";
 
@@ -68,7 +63,7 @@ export class FetchInstrumentation extends BaseInstrumentation {
 
     globalThis.fetch = async function patchedFetch(
       input: RequestInfo | URL,
-      init?: RequestInit
+      init?: RequestInit,
     ): Promise<Response> {
       const url = instrumentation.extractUrl(input);
 
@@ -113,11 +108,18 @@ export class FetchInstrumentation extends BaseInstrumentation {
 
       const spanName = instrumentation.createSpanName(method, url, category);
 
-      const tracer = trace.getTracer(INSTRUMENTATION_NAME, INSTRUMENTATION_VERSION);
-      const span = tracer.startSpan(spanName, {
-        kind: SpanKind.CLIENT,
-        attributes,
-      }, context.active());
+      const tracer = trace.getTracer(
+        INSTRUMENTATION_NAME,
+        INSTRUMENTATION_VERSION,
+      );
+      const span = tracer.startSpan(
+        spanName,
+        {
+          kind: SpanKind.CLIENT,
+          attributes,
+        },
+        context.active(),
+      );
 
       const ctx = trace.setSpan(context.active(), span);
 
@@ -128,9 +130,13 @@ export class FetchInstrumentation extends BaseInstrumentation {
           const response = await originalFetch!(input, init);
 
           span.setAttribute(ATTR_HTTP_RESPONSE_STATUS_CODE, response.status);
-          span.setAttribute("http.response.duration_ms", performance.now() - startTime);
+          span.setAttribute(
+            "http.response.duration_ms",
+            performance.now() - startTime,
+          );
 
-          const cacheStatus = response.headers.get("x-nextjs-cache") ||
+          const cacheStatus =
+            response.headers.get("x-nextjs-cache") ||
             response.headers.get("x-vercel-cache") ||
             response.headers.get("cf-cache-status");
           if (cacheStatus) {
@@ -142,7 +148,10 @@ export class FetchInstrumentation extends BaseInstrumentation {
 
           const contentLength = response.headers.get("content-length");
           if (contentLength) {
-            span.setAttribute("http.response.body.size", parseInt(contentLength, 10));
+            span.setAttribute(
+              "http.response.body.size",
+              parseInt(contentLength, 10),
+            );
           }
 
           if (response.status >= 400) {
@@ -211,30 +220,49 @@ export class FetchInstrumentation extends BaseInstrumentation {
   private categorizeUrl(url: string): string {
     const urlLower = url.toLowerCase();
 
-    if (urlLower.includes("supabase") || urlLower.includes("prisma") ||
-      urlLower.includes("planetscale") || urlLower.includes("neon.tech")) {
+    if (
+      urlLower.includes("supabase") ||
+      urlLower.includes("prisma") ||
+      urlLower.includes("planetscale") ||
+      urlLower.includes("neon.tech")
+    ) {
       return "database";
     }
 
-    if (urlLower.includes("stripe.com") || urlLower.includes("api.github.com") ||
-      urlLower.includes("googleapis.com") || urlLower.includes("api.openai.com")) {
+    if (
+      urlLower.includes("stripe.com") ||
+      urlLower.includes("api.github.com") ||
+      urlLower.includes("googleapis.com") ||
+      urlLower.includes("api.openai.com")
+    ) {
       return "external";
     }
 
-    if (urlLower.includes("auth0.com") || urlLower.includes("clerk.") ||
-      urlLower.includes("supabase.co/auth")) {
+    if (
+      urlLower.includes("auth0.com") ||
+      urlLower.includes("clerk.") ||
+      urlLower.includes("supabase.co/auth")
+    ) {
       return "auth";
     }
 
-    if (urlLower.includes("analytics") || urlLower.includes("gtag") ||
-      urlLower.includes("plausible") || urlLower.includes("posthog")) {
+    if (
+      urlLower.includes("analytics") ||
+      urlLower.includes("gtag") ||
+      urlLower.includes("plausible") ||
+      urlLower.includes("posthog")
+    ) {
       return "analytics";
     }
 
     return "http";
   }
 
-  private createSpanName(method: string, url: string, _category: string): string {
+  private createSpanName(
+    method: string,
+    url: string,
+    _category: string,
+  ): string {
     try {
       const parsed = new URL(url, "http://localhost");
       const path = parsed.pathname;
@@ -253,7 +281,11 @@ export class FetchInstrumentation extends BaseInstrumentation {
     }
   }
 
-  private getCallSite(): { source: string; file?: string; functionName?: string } | null {
+  private getCallSite(): {
+    source: string;
+    file?: string;
+    functionName?: string;
+  } | null {
     try {
       const err = new Error();
       const stack = err.stack;
@@ -290,7 +322,9 @@ export class FetchInstrumentation extends BaseInstrumentation {
         const line = lines[i];
         if (!line) continue;
 
-        const shouldSkip = skipPatterns.some(pattern => line.includes(pattern));
+        const shouldSkip = skipPatterns.some((pattern) =>
+          line.includes(pattern),
+        );
         if (shouldSkip) continue;
 
         const match = line.match(/at\s+(?:(.+?)\s+\()?(.*?):(\d+):(\d+)\)?/);
@@ -315,13 +349,13 @@ export class FetchInstrumentation extends BaseInstrumentation {
             return {
               source: `${cleanFile}:${match[3]}`,
               file: cleanFile,
-              functionName: functionName !== "anonymous" ? functionName : undefined,
+              functionName:
+                functionName !== "anonymous" ? functionName : undefined,
             };
           }
         }
       }
-    } catch {
-    }
+    } catch {}
 
     return null;
   }

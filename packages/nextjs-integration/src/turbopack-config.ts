@@ -38,16 +38,18 @@ export function withNextDoctor(config: NextConfig = {}): NextConfig {
             /^react$/,
             (resource: ResolveData) => {
               const layer = resource.contextInfo?.issuerLayer;
-              const isFromNodeModules = resource.context?.includes("node_modules");
+              const isFromNodeModules =
+                resource.context?.includes("node_modules");
 
               // Replace for React Server Components and server actions
               // Layers: "rsc" = server components, "action-browser" = server actions, "ssr" = client SSR
-              const isServerLayer = layer === "rsc" || layer === "action-browser";
+              const isServerLayer =
+                layer === "rsc" || layer === "action-browser";
               if (isServerLayer && !isFromNodeModules) {
                 resource.request = "nextdoctor/server-react";
               }
-            }
-          )
+            },
+          ),
         );
       }
 

@@ -1,6 +1,6 @@
 import type { EventEmitter } from "node:events";
-import { Hono } from "hono";
 import { NAVIGATION_EVENTS_ROUTE } from "@nextdoctor/shared";
+import { Hono } from "hono";
 
 const origins = ["client", "server"];
 const entities = ["metrics", "traces"];
