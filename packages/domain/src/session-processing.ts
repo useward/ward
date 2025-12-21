@@ -140,8 +140,10 @@ const buildResourceTree = (
 
   for (const resource of resourceMap.values()) {
     if (resource.parentId && resourceMap.has(resource.parentId)) {
-      const parent = resourceMap.get(resource.parentId)!;
-      parent.children.push(resource);
+      const parent = resourceMap.get(resource.parentId);
+      if (parent) {
+        parent.children.push(resource);
+      }
     } else if (!resource.parentId || !resourceIdSet.has(resource.parentId)) {
       roots.push(resource);
     }
@@ -152,9 +154,13 @@ const buildResourceTree = (
 
   const sortChildren = (resource: Resource): Resource => {
     const mutableChildren = [...resource.children];
-    const sortedChildren = sortByStartTime(mutableChildren).map((child) =>
-      sortChildren(resourceMap.get(child.id)!),
-    );
+    const sortedChildren = sortByStartTime(mutableChildren)
+      .map((child) => resourceMap.get(child.id))
+      .filter(
+        (child): child is Resource & { children: Resource[] } =>
+          child !== undefined,
+      )
+      .map(sortChildren);
     return { ...resource, children: sortedChildren };
   };
 
@@ -188,7 +194,7 @@ const computeStats = (resources: ReadonlyArray<Resource>): SessionStats => {
     };
   }
 
-  const firstResource = resources[0]!;
+  const firstResource = resources[0];
   let serverResources = 0;
   let clientResources = 0;
   let errorCount = 0;

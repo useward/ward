@@ -51,7 +51,7 @@ export const assignSpanToSession = (
   if (!state.sessionSpans.has(sessionId)) {
     state.sessionSpans.set(sessionId, new Set());
   }
-  state.sessionSpans.get(sessionId)!.add(spanId);
+  state.sessionSpans.get(sessionId)?.add(spanId);
   state.orphanSpans.delete(spanId);
   return true;
 };

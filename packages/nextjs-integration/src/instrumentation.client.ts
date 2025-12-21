@@ -140,22 +140,24 @@ class SessionManager {
     this.state.navigationStartTime = performance.now();
     this.state.currentPathname = newPathname;
 
-    this.sendNavigationEvent({
-      sessionId: this.state.currentSessionId!,
-      projectId: this.state.projectId,
-      url: window.location.href,
-      route: newPathname,
-      navigationType,
-      previousSessionId: this.state.previousSessionId,
-      timing: {
-        navigationStart: this.state.navigationStartTime,
-        responseStart: null,
-        domContentLoaded: null,
-        load: null,
-        fcp: null,
-        lcp: null,
-      },
-    });
+    if (this.state.currentSessionId) {
+      this.sendNavigationEvent({
+        sessionId: this.state.currentSessionId,
+        projectId: this.state.projectId,
+        url: window.location.href,
+        route: newPathname,
+        navigationType,
+        previousSessionId: this.state.previousSessionId,
+        timing: {
+          navigationStart: this.state.navigationStartTime,
+          responseStart: null,
+          domContentLoaded: null,
+          load: null,
+          fcp: null,
+          lcp: null,
+        },
+      });
+    }
   }
 
   private isPageRoute(pathname: string): boolean {
@@ -203,7 +205,9 @@ class SessionManager {
           this.state.pendingNavigationPathname = targetPathname;
         }
 
-        return this.state.pendingNavigationSessionId!;
+        return (
+          this.state.pendingNavigationSessionId || this.generateSessionId()
+        );
       }
 
       if (
@@ -230,7 +234,7 @@ class SessionManager {
     if (!this.state.currentSessionId) {
       this.initialize();
     }
-    return this.state.currentSessionId!;
+    return this.state.currentSessionId || this.generateSessionId();
   }
 
   setFcp(value: number): void {

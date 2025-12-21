@@ -173,29 +173,38 @@ function ResourceRow(
 
   const paddingLeft = 8 + depth * 20;
 
+  const handleClick = (e: React.MouseEvent) => {
+    const target = e.target as HTMLElement;
+    if (target.closest("[data-expand-toggle]")) {
+      onExpandToggle(e, resource.id);
+    } else {
+      onRowClick(resource);
+    }
+  };
+
   return (
-    <div
+    <button
+      type="button"
       style={{ ...style, paddingLeft }}
       className={cn(
-        "flex items-center gap-2 pr-3 cursor-pointer transition-colors border-b border-border/30",
+        "flex items-center gap-2 pr-3 cursor-pointer transition-colors border-b border-border/30 w-full text-left",
         isSelected ? "bg-accent" : "hover:bg-accent/50",
         !isVisible && "opacity-50",
       )}
-      onClick={() => onRowClick(resource)}
+      onClick={handleClick}
     >
       <div className="flex items-center gap-1 min-w-[20px]">
         {hasChildren ? (
-          <button
-            type="button"
-            onClick={(e) => onExpandToggle(e, resource.id)}
-            className="p-0.5 hover:bg-accent rounded"
+          <span
+            data-expand-toggle
+            className="p-0.5 hover:bg-accent rounded cursor-pointer"
           >
             {isExpanded ? (
               <ChevronDown className="size-3 text-muted-foreground" />
             ) : (
               <ChevronRight className="size-3 text-muted-foreground" />
             )}
-          </button>
+          </span>
         ) : (
           <span className="w-4" />
         )}
@@ -232,6 +241,6 @@ function ResourceRow(
       <span className="text-[10px] font-mono text-muted-foreground w-16 text-right flex-shrink-0">
         {formatDuration(resource.duration)}
       </span>
-    </div>
+    </button>
   );
 }

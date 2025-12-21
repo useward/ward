@@ -190,7 +190,7 @@ export const diagnosePerformance = (
   const criticalPathIds = findCriticalPath(session.rootResources);
   if (criticalPathIds.length > 0) {
     const criticalResources = criticalPathIds
-      .map((id) => session!.resources.find((r) => r.id === id))
+      .map((id) => session.resources.find((r) => r.id === id))
       .filter((r): r is Resource => r !== undefined);
 
     const criticalDuration = criticalResources.reduce(

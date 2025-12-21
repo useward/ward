@@ -6,6 +6,9 @@ import { defineConfig } from "vite";
 // https://vite.dev/config/
 export default defineConfig(({ mode }) => ({
   root: __dirname,
+  define: {
+    "process.env.NODE_ENV": JSON.stringify(mode),
+  },
   build: {
     outDir: path.resolve(__dirname, "../dist/ui"),
     emptyOutDir: true,

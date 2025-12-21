@@ -68,7 +68,8 @@ export class FetchInstrumentation extends BaseInstrumentation {
       const url = instrumentation.extractUrl(input);
 
       if (instrumentation.shouldIgnore(url)) {
-        return originalFetch!(input, init);
+        if (!originalFetch) throw new Error("originalFetch is null");
+        return originalFetch(input, init);
       }
 
       const method = init?.method || "GET";
@@ -127,7 +128,8 @@ export class FetchInstrumentation extends BaseInstrumentation {
         const startTime = performance.now();
 
         try {
-          const response = await originalFetch!(input, init);
+          if (!originalFetch) throw new Error("originalFetch is null");
+          const response = await originalFetch(input, init);
 
           span.setAttribute(ATTR_HTTP_RESPONSE_STATUS_CODE, response.status);
           span.setAttribute(

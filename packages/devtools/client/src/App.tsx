@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { useShallow } from "zustand/shallow";
 import { DevtoolHeader } from "@/components/devtool-header";
 import { ProfilingControls } from "@/components/profiling-controls";
 import { ResourceDetails } from "@/components/resource-details";
@@ -19,8 +20,10 @@ function App() {
     selectedProjectId,
     selectProject,
   } = useProfilingStore();
-  const projects = useProfilingStore(projectIdsSelector);
-  const allFilteredSessions = useProfilingStore(filteredSessionsSelector);
+  const projects = useProfilingStore(useShallow(projectIdsSelector));
+  const allFilteredSessions = useProfilingStore(
+    useShallow(filteredSessionsSelector),
+  );
 
   const filteredSessions = status === "idle" ? [] : allFilteredSessions;
 

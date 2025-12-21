@@ -405,9 +405,10 @@ const ResourceRow = memo(function ResourceRow({
   }, [onClick, resource.id]);
 
   return (
-    <div
+    <button
+      type="button"
       className={cn(
-        "flex items-center gap-2 h-5 group cursor-pointer transition-colors",
+        "flex items-center gap-2 h-5 group cursor-pointer transition-colors w-full text-left",
         isFiltered && "opacity-30",
         isSelected && "bg-accent/50",
       )}
@@ -451,7 +452,7 @@ const ResourceRow = memo(function ResourceRow({
       <span className="text-[10px] font-mono text-muted-foreground min-w-12.5 text-right shrink-0">
         {formatDuration(resource.duration)}
       </span>
-    </div>
+    </button>
   );
 });
 

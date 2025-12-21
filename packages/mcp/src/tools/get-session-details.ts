@@ -36,7 +36,7 @@ const formatResource = (
 
   const name =
     resource.name.length > 60
-      ? resource.name.substring(0, 57) + "..."
+      ? `${resource.name.substring(0, 57)}...`
       : resource.name;
   lines.push(
     `${indent}[${relativeStart}ms-${relativeEnd}ms] (${duration}) ${statusIndicator}${resource.type}: ${name}${cachedIndicator}`,

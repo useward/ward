@@ -15,6 +15,7 @@ import {
   ZoomOut,
 } from "lucide-react";
 import { useMemo, useState } from "react";
+import { useShallow } from "zustand/shallow";
 import { ResourceFilters } from "@/components/resource-filters";
 import { ResourceTree } from "@/components/resource-tree";
 import { SessionWaterfall } from "@/components/session-waterfall";
@@ -51,7 +52,7 @@ export function SessionsPanel() {
     setZoom,
     resetZoomPan,
   } = useProfilingStore();
-  const sessions = useProfilingStore(filteredSessionsSelector);
+  const sessions = useProfilingStore(useShallow(filteredSessionsSelector));
 
   const [searchQuery, setSearchQuery] = useState("");
   const [filterType, setFilterType] = useState<NavigationType | "ALL">("ALL");

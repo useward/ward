@@ -75,8 +75,9 @@ export const getSessions = (
     : store.getSessions();
 
   if (args.route) {
+    const route = args.route;
     sessions = sessions.filter(
-      (s) => s.route === args.route || s.route.startsWith(args.route!),
+      (s) => s.route === route || s.route.startsWith(route),
     );
   }
 

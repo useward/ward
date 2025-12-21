@@ -183,7 +183,7 @@ export class NextJsServerInstrumentation extends BaseInstrumentation {
 
       const isApiRoute = url.includes("/api/") || url.includes("/_next/");
       const isRscRequest =
-        req.headers?.["rsc"] === "1" ||
+        req.headers?.rsc === "1" ||
         req.headers?.accept?.includes("text/x-component");
 
       let dynamicSpanName = spanName;
@@ -345,7 +345,7 @@ export class NextJsServerInstrumentation extends BaseInstrumentation {
       attrs[ATTR_SERVER_ADDRESS] = host;
     }
 
-    if (req.headers?.["rsc"]) {
+    if (req.headers?.rsc) {
       attrs["nextjs.rsc.request"] = true;
     }
 

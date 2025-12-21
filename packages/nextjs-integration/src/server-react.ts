@@ -5,7 +5,7 @@ import { cache as reactCache } from "react";
 const INSTRUMENTATION_NAME = "react-cache-instrumentation";
 const INSTRUMENTATION_VERSION = "1.0.0";
 
-export function cache<CachedFunction extends Function>(
+export function cache<CachedFunction extends (...args: never[]) => unknown>(
   fn: CachedFunction,
 ): CachedFunction {
   const tracer = trace.getTracer(INSTRUMENTATION_NAME, INSTRUMENTATION_VERSION);

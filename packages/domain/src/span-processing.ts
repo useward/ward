@@ -33,16 +33,14 @@ const parseAttributes = (
   attrs: ReadonlyArray<KeyValue> | undefined,
 ): Record<string, string | number | boolean> => {
   if (!attrs) return {};
-  return pipe(
-    attrs,
-    A.reduce({} as Record<string, string | number | boolean>, (acc, kv) => {
-      const val = extractAttributeValue(kv.value);
-      if (val !== undefined) {
-        return { ...acc, [kv.key]: val };
-      }
-      return acc;
-    }),
-  );
+  const result: Record<string, string | number | boolean> = {};
+  for (const kv of attrs) {
+    const val = extractAttributeValue(kv.value);
+    if (val !== undefined) {
+      result[kv.key] = val;
+    }
+  }
+  return result;
 };
 
 const parseStatus = (status: OTLPSpan["status"]): SpanStatus => {
@@ -220,10 +218,12 @@ export const buildSpanTree = (
 
   for (const span of spanMap.values()) {
     if (span.parentId && spanMap.has(span.parentId)) {
-      const parent = spanMap.get(span.parentId)!;
-      parent.children = [...parent.children, span].sort(
-        (a, b) => a.startTime - b.startTime,
-      );
+      const parent = spanMap.get(span.parentId);
+      if (parent) {
+        parent.children = [...parent.children, span].sort(
+          (a, b) => a.startTime - b.startTime,
+        );
+      }
     }
   }
 
