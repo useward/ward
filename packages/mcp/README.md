@@ -10,9 +10,9 @@ npm install -g @useward/mcp
 
 ## Usage
 
-### With Claude Desktop
+### With Claude Code, Cursor, and other MCP-compatible tools
 
-Add to your Claude configuration (`~/Library/Application Support/Claude/claude_desktop_config.json`):
+Add to your MCP configuration:
 
 ```json
 {
