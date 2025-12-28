@@ -1,6 +1,6 @@
 {
   "name": "@useward/devtools",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Development server for Next.js observability",
   "type": "module",
   "main": "./dist/index.mjs",
