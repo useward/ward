@@ -25,9 +25,9 @@ Instead, please email security concerns to the project maintainers directly.
 
 This security policy applies to:
 
-- `ward` (Next.js instrumentation SDK)
-- `@ward/mcp` (MCP server)
-- `@ward/devtools` (Local development dashboard)
+- `@useward/instrumentation` (Next.js instrumentation SDK)
+- `@useward/mcp` (MCP server)
+- `@useward/devtools` (Local development dashboard)
 
 ## Security Best Practices
 
