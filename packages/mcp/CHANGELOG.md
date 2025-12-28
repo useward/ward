@@ -1,5 +1,11 @@
 # @useward/mcp
 
+## 0.1.2
+
+### Patch Changes
+
+- docs: usage guide
+
 ## 0.1.1
 
 ### Patch Changes
