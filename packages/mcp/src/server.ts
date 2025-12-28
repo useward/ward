@@ -18,8 +18,10 @@ export const createServer = async (config: McpConfig) => {
   const autoProjectId = resolveProjectId();
 
   const server = new McpServer({
-    name: "ward",
-    version: "0.0.1",
+    name: "Ward",
+    version: "0.1.0",
+    description:
+      "Next.js observability. Use when debugging performance issues, investigating errors, or when you need runtime telemetry to understand what's happening in the app.",
   });
 
   server.registerTool(
