@@ -15,12 +15,12 @@ import {
   ATTR_SERVICE_NAME,
   ATTR_SERVICE_VERSION,
 } from "@opentelemetry/semantic-conventions";
-import { OTLPHttpJsonTraceExporter, registerOTel } from "@vercel/otel";
 import {
   ATTR_PROJECT_ID,
   ATTR_SESSION_ID,
   SERVER_TRACES_ENDPOINT,
 } from "@useward/shared";
+import { OTLPHttpJsonTraceExporter, registerOTel } from "@vercel/otel";
 import {
   getProjectId,
   resolveProjectId,

@@ -23,7 +23,13 @@
     "changeset": "changeset",
     "release": "pnpm build && changeset publish"
   },
-  "keywords": ["nextjs", "observability", "opentelemetry", "tracing", "performance"],
+  "keywords": [
+    "nextjs",
+    "observability",
+    "opentelemetry",
+    "tracing",
+    "performance"
+  ],
   "author": "PerfoTech, LLC",
   "license": "FSL-1.1-Apache-2.0",
   "packageManager": "pnpm@10.11.1",
