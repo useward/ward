@@ -50,7 +50,23 @@ export function register() {
 }
 ```
 
-### 3. Run the devtools
+### 3. Add middleware (optional)
+
+For trace context propagation across requests:
+
+```ts
+// middleware.ts
+import { NextResponse } from 'next/server';
+import type { NextRequest } from 'next/server';
+import { wardMiddleware } from '@useward/instrumentation/middleware';
+
+export function middleware(request: NextRequest) {
+  const response = NextResponse.next();
+  return wardMiddleware(request, response);
+}
+```
+
+### 4. Run the devtools
 
 ```bash
 npx @useward/devtools
