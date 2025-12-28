@@ -1,11 +1,25 @@
 {
   "name": "@useward/devtools",
-  "private": "false",
   "version": "0.1.0",
-  "description": "",
+  "description": "Development server for Next.js observability",
   "type": "module",
   "main": "./dist/index.mjs",
-  "keywords": [],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/useward/ward.git",
+    "directory": "packages/devtools"
+  },
+  "homepage": "https://github.com/useward/ward#readme",
+  "bugs": {
+    "url": "https://github.com/useward/ward/issues"
+  },
+  "keywords": [
+    "nextjs",
+    "devtools",
+    "observability",
+    "opentelemetry",
+    "performance"
+  ],
   "exports": {
     ".": {
       "import": "./dist/index.mjs",
@@ -26,8 +40,8 @@
   "bin": {
     "ward": "./dist/index.mjs"
   },
-  "author": "",
-  "license": "ISC",
+  "author": "PerfoTech, LLC",
+  "license": "FSL-1.1-Apache-2.0",
   "packageManager": "pnpm@10.11.1",
   "dependencies": {
     "@hono/node-server": "^1.19.6",
