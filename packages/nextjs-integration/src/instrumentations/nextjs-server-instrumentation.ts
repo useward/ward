@@ -15,7 +15,7 @@ import {
   ATTR_URL_FULL,
   ATTR_URL_PATH,
 } from "@opentelemetry/semantic-conventions";
-import { ATTR_SESSION_ID, SESSION_ID_HEADER } from "@ward/shared";
+import { ATTR_SESSION_ID, SESSION_ID_HEADER } from "@useward/shared";
 
 import {
   ATTR_REQUEST_ID,

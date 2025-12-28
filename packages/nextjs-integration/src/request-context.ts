@@ -1,5 +1,5 @@
 import type { Span } from "@opentelemetry/api";
-import { SERVER_SESSION_ID_PREFIX } from "@ward/shared";
+import { SERVER_SESSION_ID_PREFIX } from "@useward/shared";
 
 const AsyncLocalStorage = (
   globalThis as unknown as {

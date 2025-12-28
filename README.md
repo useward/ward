@@ -16,16 +16,16 @@ Ward is an observability toolkit that understands Next.js. It provides:
 
 | Package | Description |
 |---------|-------------|
-| [`ward`](./packages/nextjs-integration) | Next.js instrumentation SDK |
-| [`@ward/mcp`](./packages/mcp) | Model Context Protocol server for AI tools |
-| `@ward/devtools` | Local development dashboard |
+| [`@useward/instrumentation`](./packages/nextjs-integration) | Next.js instrumentation SDK |
+| [`@useward/mcp`](./packages/mcp) | Model Context Protocol server for AI tools |
+| `@useward/devtools` | Local development dashboard |
 
 ## Quick Start
 
 ### 1. Install
 
 ```bash
-npm install ward
+npm install @useward/instrumentation
 ```
 
 ### 2. Add instrumentation
@@ -34,7 +34,7 @@ npm install ward
 // instrumentation.ts
 export async function register() {
   if (process.env.NODE_ENV === 'development') {
-    const { registerWard } = await import('ward/instrumentation');
+    const { registerWard } = await import('@useward/instrumentation');
     registerWard();
   }
 }
@@ -44,7 +44,7 @@ export async function register() {
 // instrumentation-client.ts
 export async function register() {
   if (process.env.NODE_ENV === 'development') {
-    const { registerWard } = await import('ward/instrumentation-client');
+    const { registerWard } = await import('@useward/instrumentation/client');
     registerWard();
   }
 }

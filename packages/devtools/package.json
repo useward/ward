@@ -36,7 +36,7 @@
     "hono": "^4.10.7"
   },
   "devDependencies": {
-    "@ward/shared": "workspace:*",
+    "@useward/shared": "workspace:*",
     "@types/node": "^24.10.1",
     "tsdown": "^0.16.7",
     "tsx": "^4.20.6",

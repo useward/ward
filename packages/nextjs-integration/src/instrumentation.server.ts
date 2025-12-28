@@ -20,7 +20,7 @@ import {
   ATTR_PROJECT_ID,
   ATTR_SESSION_ID,
   SERVER_TRACES_ENDPOINT,
-} from "@ward/shared";
+} from "@useward/shared";
 import {
   getProjectId,
   resolveProjectId,

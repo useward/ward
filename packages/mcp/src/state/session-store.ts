@@ -9,8 +9,8 @@ import {
   type Resource,
   type SessionState,
   sortSessionsByTime,
-} from "@ward/domain";
-import { isValidSessionId } from "@ward/shared";
+} from "@useward/domain";
+import { isValidSessionId } from "@useward/shared";
 import type { McpConfig } from "../config";
 import { SSEClient, type TelemetryEvent } from "./sse-client";
 

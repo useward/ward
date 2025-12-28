@@ -1,5 +1,5 @@
 import { serve } from "@hono/node-server";
-import { SERVER_PORT } from "@ward/shared";
+import { SERVER_PORT } from "@useward/shared";
 import type { Hono } from "hono";
 
 export function startServer(app: Hono) {

@@ -5,7 +5,7 @@ import {
   parseNavigationEvent,
   type RawSpan,
   type SpanOrigin,
-} from "@ward/domain";
+} from "@useward/domain";
 import { EventSource } from "eventsource";
 
 export interface TelemetryEvent {

@@ -36,12 +36,12 @@ importers:
         specifier: ^4.10.7
         version: 4.10.7
     devDependencies:
-      '@ward/shared':
-        specifier: workspace:*
-        version: link:../shared
       '@types/node':
         specifier: ^24.10.1
         version: 24.10.1
+      '@useward/shared':
+        specifier: workspace:*
+        version: link:../shared
       tsdown:
         specifier: ^0.16.7
         version: 0.16.7(typescript@5.9.3)
@@ -54,12 +54,6 @@ importers:
 
   packages/devtools/client:
     dependencies:
-      '@ward/domain':
-        specifier: workspace:*
-        version: link:../../domain
-      '@ward/shared':
-        specifier: workspace:*
-        version: link:../../shared
       '@radix-ui/react-scroll-area':
         specifier: ^1.2.10
         version: 1.2.10(@types/react-dom@19.2.3(@types/react@19.2.7))(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
@@ -75,6 +69,12 @@ importers:
       '@tailwindcss/vite':
         specifier: ^4.1.17
         version: 4.1.18(rolldown-vite@7.2.5(@types/node@24.10.1)(esbuild@0.25.12)(jiti@2.6.1)(terser@5.44.1)(tsx@4.20.6))
+      '@useward/domain':
+        specifier: workspace:*
+        version: link:../../domain
+      '@useward/shared':
+        specifier: workspace:*
+        version: link:../../shared
       class-variance-authority:
         specifier: ^0.7.1
         version: 0.7.1
@@ -154,7 +154,7 @@ importers:
 
   packages/domain:
     dependencies:
-      '@ward/shared':
+      '@useward/shared':
         specifier: workspace:*
         version: link:../shared
       effect:
@@ -176,10 +176,10 @@ importers:
       '@modelcontextprotocol/sdk':
         specifier: ^1.0.0
         version: 1.25.1(hono@4.10.7)(zod@3.25.76)
-      '@ward/domain':
+      '@useward/domain':
         specifier: workspace:*
         version: link:../domain
-      '@ward/shared':
+      '@useward/shared':
         specifier: workspace:*
         version: link:../shared
       eventsource:
@@ -280,15 +280,15 @@ importers:
         specifier: ^5.9.3
         version: 5.9.3
     devDependencies:
-      '@ward/shared':
-        specifier: workspace:*
-        version: link:../shared
       '@types/node':
         specifier: ^24.10.1
         version: 24.10.1
       '@types/react':
         specifier: ^19.2.7
         version: 19.2.7
+      '@useward/shared':
+        specifier: workspace:*
+        version: link:../shared
       webpack:
         specifier: ^5.103.0
         version: 5.103.0

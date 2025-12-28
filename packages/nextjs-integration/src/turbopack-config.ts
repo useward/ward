@@ -46,7 +46,7 @@ export function withWard(config: NextConfig = {}): NextConfig {
               const isServerLayer =
                 layer === "rsc" || layer === "action-browser";
               if (isServerLayer && !isFromNodeModules) {
-                resource.request = "ward/server-react";
+                resource.request = "@useward/server-react";
               }
             },
           ),

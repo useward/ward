@@ -1,4 +1,4 @@
-import type { Resource } from "@ward/domain";
+import type { Resource } from "@useward/domain";
 import type { SessionStore } from "../state/session-store";
 
 export interface GetSessionDetailsArgs {

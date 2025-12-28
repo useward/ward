@@ -5,8 +5,8 @@ import {
   type NavigationEvent,
   type PageSession,
   processSessions,
-} from "@ward/domain";
-import { isValidSessionId } from "@ward/shared";
+} from "@useward/domain";
+import { isValidSessionId } from "@useward/shared";
 import * as Context from "effect/Context";
 import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";

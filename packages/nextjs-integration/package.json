@@ -23,12 +23,7 @@
       "import": "./dist/middleware.js",
       "default": "./dist/middleware.js"
     },
-    "./instrumentation": {
-      "types": "./dist/instrumentation.server.d.ts",
-      "import": "./dist/instrumentation.server.js",
-      "default": "./dist/instrumentation.server.js"
-    },
-    "./instrumentation-client": {
+    "./client": {
       "types": "./dist/instrumentation.client.d.ts",
       "import": "./dist/instrumentation.client.js",
       "default": "./dist/instrumentation.client.js"
@@ -85,7 +80,7 @@
     "typescript": "^5.9.3"
   },
   "devDependencies": {
-    "@ward/shared": "workspace:*",
+    "@useward/shared": "workspace:*",
     "@types/node": "^24.10.1",
     "@types/react": "^19.2.7",
     "webpack": "^5.103.0"

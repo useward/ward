@@ -4,7 +4,7 @@ import {
   ATTR_HTTP_RESPONSE_STATUS_CODE,
   ATTR_URL_FULL,
 } from "@opentelemetry/semantic-conventions";
-import { ATTR_SESSION_ID, SERVER_PORT } from "@ward/shared";
+import { ATTR_SESSION_ID, SERVER_PORT } from "@useward/shared";
 import {
   ATTR_COMPONENT_FILE,
   ATTR_FETCH_INITIATOR,

@@ -5,7 +5,7 @@ import {
   type PageSession,
   type Resource,
   runDetectors,
-} from "@ward/domain";
+} from "@useward/domain";
 import type { SessionStore } from "../state/session-store";
 
 export interface DiagnosePerformanceArgs {

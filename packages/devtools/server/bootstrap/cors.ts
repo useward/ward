@@ -1,4 +1,4 @@
-import { SESSION_ID_HEADER } from "@ward/shared";
+import { SESSION_ID_HEADER } from "@useward/shared";
 import type { Hono } from "hono";
 import { cors } from "hono/cors";
 

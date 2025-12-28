@@ -1,5 +1,5 @@
 {
-  "name": "@ward/domain",
+  "name": "@useward/domain",
   "private": true,
   "version": "0.0.1",
   "type": "module",
@@ -16,7 +16,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@ward/shared": "workspace:*",
+    "@useward/shared": "workspace:*",
     "effect": "^3.19.8"
   },
   "devDependencies": {

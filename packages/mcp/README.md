@@ -5,7 +5,7 @@ Model Context Protocol (MCP) server for Ward. Exposes Next.js observability data
 ## Installation
 
 ```bash
-npm install -g @ward/mcp
+npm install -g @useward/mcp
 ```
 
 ## Usage
@@ -19,7 +19,7 @@ Add to your Claude configuration (`~/Library/Application Support/Claude/claude_d
   "mcpServers": {
     "ward": {
       "command": "npx",
-      "args": ["@ward/mcp"]
+      "args": ["@useward/mcp"]
     }
   }
 }
@@ -28,7 +28,7 @@ Add to your Claude configuration (`~/Library/Application Support/Claude/claude_d
 ### Standalone
 
 ```bash
-npx @ward/mcp
+npx @useward/mcp
 ```
 
 ## Prerequisites
@@ -36,7 +36,7 @@ npx @ward/mcp
 The MCP server connects to Ward devtools. Make sure devtools is running:
 
 ```bash
-npx @ward/devtools
+npx @useward/devtools
 ```
 
 ## Available Tools

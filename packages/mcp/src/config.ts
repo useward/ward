@@ -1,5 +1,5 @@
 import * as path from "node:path";
-import { SERVER_PORT } from "@ward/shared";
+import { SERVER_PORT } from "@useward/shared";
 
 export interface McpConfig {
   readonly devtoolsUrl: string;

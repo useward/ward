@@ -5,7 +5,7 @@ Next.js instrumentation SDK for full-stack observability.
 ## Installation
 
 ```bash
-npm install ward
+npm install @useward/instrumentation
 ```
 
 ## Setup
@@ -17,7 +17,7 @@ Create `instrumentation.ts` in your project root:
 ```ts
 export async function register() {
   if (process.env.NODE_ENV === 'development') {
-    const { registerWard } = await import('ward/instrumentation');
+    const { registerWard } = await import('@useward/instrumentation');
     registerWard();
   }
 }
@@ -30,7 +30,7 @@ Create `instrumentation-client.ts` in your project root:
 ```ts
 export async function register() {
   if (process.env.NODE_ENV === 'development') {
-    const { registerWard } = await import('ward/instrumentation-client');
+    const { registerWard } = await import('@useward/instrumentation/client');
     registerWard();
   }
 }
@@ -42,7 +42,7 @@ For trace context propagation across requests:
 
 ```ts
 // middleware.ts
-import { withWard } from 'ward/middleware';
+import { withWard } from '@useward/instrumentation/middleware';
 
 export const middleware = withWard();
 ```
@@ -79,12 +79,11 @@ Ward auto-detects your project and sends telemetry to the local devtools server.
 
 | Export | Description |
 |--------|-------------|
-| `ward` | Main entry |
-| `ward/instrumentation` | Server-side instrumentation |
-| `ward/instrumentation-client` | Client-side instrumentation |
-| `ward/middleware` | Next.js middleware utilities |
-| `ward/server-react` | React server utilities |
-| `ward/session-meta` | Session metadata component |
+| `@useward/instrumentation` | Main entry |
+| `@useward/instrumentation` | Server-side instrumentation |
+| `@useward/instrumentation/client` | Client-side instrumentation |
+| `@useward/instrumentation/middleware` | Next.js middleware utilities |
+| `@useward/instrumentation/session-meta` | Session metadata component |
 
 ## Requirements
 

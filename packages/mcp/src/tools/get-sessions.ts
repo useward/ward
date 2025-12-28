@@ -1,4 +1,4 @@
-import type { PageSession } from "@ward/domain";
+import type { PageSession } from "@useward/domain";
 import type { SessionStore } from "../state/session-store";
 
 export interface GetSessionsArgs {

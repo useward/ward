@@ -1,4 +1,4 @@
-import type { PageSession, Resource, ResourceType } from "@ward/domain";
+import type { PageSession, Resource, ResourceType } from "@useward/domain";
 import type { SessionStore } from "../state/session-store";
 
 export interface FindSlowRequestsArgs {

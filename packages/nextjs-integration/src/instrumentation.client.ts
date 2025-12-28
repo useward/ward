@@ -23,7 +23,7 @@ import {
   NAVIGATION_EVENTS_ENDPOINT,
   SERVER_PORT,
   SESSION_ID_HEADER,
-} from "@ward/shared";
+} from "@useward/shared";
 
 type NavigationType = "initial" | "navigation" | "back-forward";
 

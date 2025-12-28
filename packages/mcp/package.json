@@ -40,8 +40,8 @@
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.0.0",
-    "@ward/domain": "workspace:*",
-    "@ward/shared": "workspace:*",
+    "@useward/domain": "workspace:*",
+    "@useward/shared": "workspace:*",
     "eventsource": "^3.0.6",
     "zod": "^3.25.56"
   },

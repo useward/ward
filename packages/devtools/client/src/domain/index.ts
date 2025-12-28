@@ -1,4 +1,4 @@
-export * from "@ward/domain";
+export * from "@useward/domain";
 
 export * from "./profiling-service";
 export * from "./runtime";

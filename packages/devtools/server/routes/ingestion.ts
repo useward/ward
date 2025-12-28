@@ -1,5 +1,5 @@
 import type { EventEmitter } from "node:events";
-import { NAVIGATION_EVENTS_ROUTE } from "@ward/shared";
+import { NAVIGATION_EVENTS_ROUTE } from "@useward/shared";
 import { Hono } from "hono";
 
 const origins = ["client", "server"];

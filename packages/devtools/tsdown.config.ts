@@ -5,5 +5,5 @@ export default defineConfig({
   format: ["esm"],
   dts: true,
   clean: true,
-  noExternal: ["@ward/shared", "@ward/core"],
+  noExternal: ["@useward/shared", "@ward/core"],
 });
