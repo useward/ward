@@ -7,9 +7,5 @@
   "access": "public",
   "baseBranch": "main",
   "updateInternalDependencies": "patch",
-  "ignore": [
-    "@useward/domain",
-    "@useward/shared",
-    "@useward/devtools-client"
-  ]
+  "ignore": ["@useward/domain", "@useward/shared", "@useward/devtools-client"]
 }

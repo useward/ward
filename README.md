@@ -1,5 +1,10 @@
 # Ward
 
+[![CI](https://github.com/useward/ward/actions/workflows/ci.yml/badge.svg)](https://github.com/useward/ward/actions/workflows/ci.yml)
+[![npm @useward/instrumentation](https://img.shields.io/npm/v/@useward/instrumentation?label=instrumentation)](https://www.npmjs.com/package/@useward/instrumentation)
+[![npm @useward/devtools](https://img.shields.io/npm/v/@useward/devtools?label=devtools)](https://www.npmjs.com/package/@useward/devtools)
+[![npm @useward/mcp](https://img.shields.io/npm/v/@useward/mcp?label=mcp)](https://www.npmjs.com/package/@useward/mcp)
+
 Next.js-native observability for the modern stack. Full-stack telemetry with OpenTelemetry, designed specifically for Next.js applications.
 
 ## What is Ward?
