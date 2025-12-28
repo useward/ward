@@ -2,6 +2,7 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
 import { type McpConfig, resolveProjectId } from "./config";
+import { ensureDevTools } from "./state/devtools-process";
 import { SessionStore } from "./state/session-store";
 import {
   diagnosePerformance,
@@ -179,20 +180,23 @@ export const createServer = async (config: McpConfig) => {
   );
 
   const run = async () => {
+    const devtools = await ensureDevTools(config.devtoolsUrl);
+
     store.connect();
 
     const transport = new StdioServerTransport();
     await server.connect(transport);
 
-    process.on("SIGINT", () => {
+    const cleanup = () => {
       store.disconnect();
-      process.exit(0);
-    });
+      if (devtools.isOwner) {
+        devtools.stop();
+      }
+    };
 
-    process.on("SIGTERM", () => {
-      store.disconnect();
-      process.exit(0);
-    });
+    process.on("exit", cleanup);
+    process.on("SIGINT", () => process.exit(0));
+    process.on("SIGTERM", () => process.exit(0));
   };
 
   return { run, store, server };
