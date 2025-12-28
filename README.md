@@ -32,19 +32,21 @@ npm install @useward/instrumentation
 
 ```ts
 // instrumentation.ts
+import { register as registerWard } from '@useward/instrumentation';
+
 export async function register() {
   if (process.env.NODE_ENV === 'development') {
-    const { registerWard } = await import('@useward/instrumentation');
-    registerWard();
+    await registerWard();
   }
 }
 ```
 
 ```ts
 // instrumentation-client.ts
-export async function register() {
+import { register as registerWard } from '@useward/instrumentation/client';
+
+export function register() {
   if (process.env.NODE_ENV === 'development') {
-    const { registerWard } = await import('@useward/instrumentation/client');
     registerWard();
   }
 }
@@ -53,7 +55,7 @@ export async function register() {
 ### 3. Run the devtools
 
 ```bash
-npx @ward/devtools
+npx @useward/devtools
 ```
 
 Open [http://localhost:19393](http://localhost:19393) to see your traces.
@@ -63,7 +65,7 @@ Open [http://localhost:19393](http://localhost:19393) to see your traces.
 Ward includes an MCP server for AI coding assistants like Claude:
 
 ```bash
-npx @ward/mcp
+npx @useward/mcp
 ```
 
 Add to your Claude configuration to get performance insights while coding.

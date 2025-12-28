@@ -1,5 +1,5 @@
 {
-  "name": "ward",
+  "name": "@useward/instrumentation",
   "version": "0.1.0",
   "description": "Next.js instrumentation SDK for full-stack observability",
   "type": "module",

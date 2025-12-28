@@ -1,4 +1,4 @@
-# ward
+# @useward/instrumentation
 
 Next.js instrumentation SDK for full-stack observability.
 
@@ -15,10 +15,11 @@ npm install @useward/instrumentation
 Create `instrumentation.ts` in your project root:
 
 ```ts
+import { register as registerWard } from '@useward/instrumentation';
+
 export async function register() {
   if (process.env.NODE_ENV === 'development') {
-    const { registerWard } = await import('@useward/instrumentation');
-    registerWard();
+    await registerWard();
   }
 }
 ```
@@ -28,9 +29,10 @@ export async function register() {
 Create `instrumentation-client.ts` in your project root:
 
 ```ts
-export async function register() {
+import { register as registerWard } from '@useward/instrumentation/client';
+
+export function register() {
   if (process.env.NODE_ENV === 'development') {
-    const { registerWard } = await import('@useward/instrumentation/client');
     registerWard();
   }
 }
@@ -42,9 +44,14 @@ For trace context propagation across requests:
 
 ```ts
 // middleware.ts
-import { withWard } from '@useward/instrumentation/middleware';
+import { NextResponse } from 'next/server';
+import type { NextRequest } from 'next/server';
+import { wardMiddleware } from '@useward/instrumentation/middleware';
 
-export const middleware = withWard();
+export function middleware(request: NextRequest) {
+  const response = NextResponse.next();
+  return wardMiddleware(request, response);
+}
 ```
 
 ## Configuration

@@ -11,7 +11,7 @@ export const listProjects = (
       return `Not connected to Ward DevTools.
 
 To start recording:
-1. Ensure Ward DevTools server is running (npx @ward/devtools)
+1. Ensure Ward DevTools server is running (npx @useward/devtools)
 2. Navigate to pages in your Next.js app to generate telemetry
 3. Projects will appear here automatically`;
     }
@@ -19,7 +19,7 @@ To start recording:
     return `No projects have sent telemetry yet.
 
 To start recording:
-1. Ensure your Next.js app is instrumented with @ward/nextjs-integration
+1. Ensure your Next.js app is instrumented with @useward/instrumentation
 2. Navigate to pages in your app to generate telemetry
 3. Projects will appear here automatically`;
   }

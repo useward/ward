@@ -88,7 +88,7 @@ export const getSessions = (
       return `Not connected to Ward DevTools.
 
 To start recording:
-1. Ensure Ward DevTools server is running (npx @ward/devtools)
+1. Ensure Ward DevTools server is running (npx @useward/devtools)
 2. Navigate to pages in your Next.js app to generate telemetry
 3. Sessions will appear here automatically`;
     }

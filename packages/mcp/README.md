@@ -1,4 +1,4 @@
-# @ward/mcp
+# @useward/mcp
 
 Model Context Protocol (MCP) server for Ward. Exposes Next.js observability data to AI coding assistants like Claude.
 
