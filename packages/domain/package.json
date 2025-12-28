@@ -13,7 +13,8 @@
   "scripts": {
     "build": "tsdown src/index.ts --format esm --dts --clean",
     "dev": "tsdown src/index.ts --format esm --dts --watch",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test": "vitest"
   },
   "dependencies": {
     "@useward/shared": "workspace:*",
@@ -22,6 +23,7 @@
   "devDependencies": {
     "@types/node": "^24.10.1",
     "tsdown": "^0.16.7",
-    "typescript": "~5.9.3"
+    "typescript": "~5.9.3",
+    "vitest": "^4.0.16"
   }
 }

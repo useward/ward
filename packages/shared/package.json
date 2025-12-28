@@ -10,7 +10,8 @@
     }
   },
   "scripts": {
-    "build": "tsdown src/index.ts --format esm --dts --clean"
+    "build": "tsdown src/index.ts --format esm --dts --clean",
+    "test": "vitest"
   },
   "description": "",
   "keywords": [],
@@ -18,6 +19,7 @@
   "license": "ISC",
   "packageManager": "pnpm@10.11.1",
   "devDependencies": {
-    "tsdown": "^0.16.7"
+    "tsdown": "^0.16.7",
+    "vitest": "^4.0.16"
   }
 }

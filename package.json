@@ -14,8 +14,7 @@
   "scripts": {
     "build": "pnpm --filter './packages/*' build",
     "dev": "pnpm --filter './packages/*' dev",
-    "test": "vitest",
-    "test:e2e": "playwright test",
+    "test": "pnpm --filter './packages/*' test",
     "lint": "biome check .",
     "format": "biome check --write .",
     "typecheck": "pnpm --filter './packages/*' typecheck",
