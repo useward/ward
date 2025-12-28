@@ -7,25 +7,15 @@
 
 > **Note:** Ward is under active development and not yet feature-complete. APIs may change between releases.
 
-Next.js-native observability for the modern stack. Full-stack telemetry with OpenTelemetry, designed specifically for Next.js applications.
-
-## What is Ward?
-
-Ward is an observability toolkit that understands Next.js. It provides:
-
-- **Full-stack tracing** - Server Components, Client Components, Server Actions, API routes
-- **Automatic instrumentation** - Zero-config setup with `@vercel/otel` integration
-- **Local dev dashboard** - Real-time waterfall visualization during development
-- **AI-ready** - MCP server for Claude and other AI coding assistants
-- **OpenTelemetry native** - Works with any OTel-compatible backend
+Next.js-native observability. See everything happening in your app - from Server Components to client hydration - with a local dashboard and AI-powered debugging via MCP.
 
 ## Packages
 
 | Package | Description |
 |---------|-------------|
 | [`@useward/instrumentation`](./packages/nextjs-integration) | Next.js instrumentation SDK |
-| [`@useward/mcp`](./packages/mcp) | Model Context Protocol server for AI tools |
-| `@useward/devtools` | Local development dashboard |
+| [`@useward/devtools`](./packages/devtools) | Development server and local dashboard |
+| [`@useward/mcp`](./packages/mcp) | MCP server for AI coding assistants |
 
 ## Quick Start
 
@@ -69,13 +59,20 @@ Open [http://localhost:19393](http://localhost:19393) to see your traces.
 
 ## MCP Integration
 
-Ward includes an MCP server for AI coding assistants like Claude:
+Ward includes an [MCP](https://modelcontextprotocol.io) server that exposes your app's telemetry to AI coding assistants:
 
-```bash
-npx @useward/mcp
+```json
+{
+  "mcpServers": {
+    "ward": {
+      "command": "npx",
+      "args": ["@useward/mcp"]
+    }
+  }
+}
 ```
 
-Add to your Claude configuration to get performance insights while coding.
+Works with Claude Code, Cursor, and other MCP-compatible tools.
 
 ## Features
 
