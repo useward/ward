@@ -1,8 +1,17 @@
 {
   "name": "ward",
-  "version": "1.0.0",
-  "description": "",
+  "version": "0.1.0",
+  "description": "Next.js instrumentation SDK for full-stack observability",
   "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/useward/ward.git",
+    "directory": "packages/nextjs-integration"
+  },
+  "homepage": "https://github.com/useward/ward#readme",
+  "bugs": {
+    "url": "https://github.com/useward/ward/issues"
+  },
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
@@ -93,8 +102,23 @@
       "optional": false
     }
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "keywords": [
+    "nextjs",
+    "next",
+    "observability",
+    "opentelemetry",
+    "otel",
+    "tracing",
+    "performance",
+    "monitoring",
+    "instrumentation",
+    "rsc",
+    "server-components"
+  ],
+  "author": "PerfoTech, LLC",
+  "license": "FSL-1.1-Apache-2.0",
+  "engines": {
+    "node": ">=22"
+  },
   "packageManager": "pnpm@10.11.1"
 }

@@ -1,8 +1,16 @@
 {
   "name": "ward",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "private": true,
+  "description": "Next.js-native observability toolkit",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/useward/ward.git"
+  },
+  "homepage": "https://github.com/useward/ward#readme",
+  "bugs": {
+    "url": "https://github.com/useward/ward/issues"
+  },
   "scripts": {
     "build": "pnpm --filter './packages/*' build",
     "dev": "pnpm --filter './packages/*' dev",
@@ -15,9 +23,9 @@
     "changeset": "changeset",
     "release": "pnpm build && changeset publish"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "keywords": ["nextjs", "observability", "opentelemetry", "tracing", "performance"],
+  "author": "PerfoTech, LLC",
+  "license": "FSL-1.1-Apache-2.0",
   "packageManager": "pnpm@10.11.1",
   "devDependencies": {
     "@biomejs/biome": "^2.3.7",

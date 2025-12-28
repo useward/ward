@@ -1,7 +1,28 @@
 {
   "name": "@ward/mcp",
-  "version": "0.0.1",
+  "version": "0.1.0",
+  "description": "MCP server for Ward - exposes Next.js observability to AI tools",
   "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/useward/ward.git",
+    "directory": "packages/mcp"
+  },
+  "homepage": "https://github.com/useward/ward#readme",
+  "bugs": {
+    "url": "https://github.com/useward/ward/issues"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "claude",
+    "ai",
+    "nextjs",
+    "observability",
+    "opentelemetry"
+  ],
+  "author": "PerfoTech, LLC",
+  "license": "FSL-1.1-Apache-2.0",
   "bin": {
     "ward-mcp": "./dist/index.mjs"
   },
@@ -29,5 +50,8 @@
     "@types/node": "^24.10.1",
     "tsdown": "^0.16.7",
     "typescript": "~5.9.3"
+  },
+  "engines": {
+    "node": ">=22"
   }
 }
