@@ -134,6 +134,4 @@ pnpm dev
 
 ## License
 
-[FSL-1.1-Apache-2.0](./LICENSE) - Free to use, converts to Apache 2.0 after 2 years.
-
-Copyright 2025 PerfoTech, LLC
+[License](./LICENSE)
